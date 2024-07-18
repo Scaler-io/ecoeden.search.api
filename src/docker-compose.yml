@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  ecoeden.search.api:
+    image: ${DOCKER_REGISTRY-}ecoedensearchapi
+    build:
+      context: .
+      dockerfile: Ecoeden.Search.Api/Dockerfile
