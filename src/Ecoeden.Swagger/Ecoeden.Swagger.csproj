@@ -6,8 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Ecoeden.Search.Domain\Ecoeden.Search.Domain.csproj" />
-  </ItemGroup>
-
 </Project>

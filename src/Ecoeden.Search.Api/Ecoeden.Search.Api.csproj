@@ -17,9 +17,4 @@
     <Folder Include="Controllers\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Ecoeden.Search.Application\Ecoeden.Search.Application.csproj" />
-    <ProjectReference Include="..\Ecoeden.Swagger\Ecoeden.Swagger.csproj" />
-  </ItemGroup>
-
 </Project>
