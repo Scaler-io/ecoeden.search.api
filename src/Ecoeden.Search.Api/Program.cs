@@ -1,23 +1,29 @@
+using Ecoeden.Search.Api;
+using Ecoeden.Search.Api.DI;
+using Ecoeden.Search.Api.Swagger;
+using Serilog;
+
 var builder = WebApplication.CreateBuilder(args);
 
+var apiName = SwaggerConfiguration.ExtractApiNameFromEnvironment();
+var apiDescription = builder.Configuration["ApiDescription"];
+var apiHost = builder.Configuration["ApiOriginHost"];
+var swaggerConfiguration = new SwaggerConfiguration(apiName, apiDescription, apiHost, builder.Environment.IsDevelopment());
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+var logger = Logging.GetLogger(builder.Configuration, builder.Environment);
+builder.Host.UseSerilog(logger);
+
+builder.Services.AddApplicationServices(builder.Configuration, swaggerConfiguration);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+app.AddApplicationPipelines(app.Environment.IsDevelopment());
+
+try
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    await app.RunAsync();
 }
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
+finally
+{
+    Log.CloseAndFlush();
+}
