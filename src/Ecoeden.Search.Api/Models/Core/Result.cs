@@ -13,7 +13,7 @@ public class Result<T>
         return new Result<T> { Data = data, IsSuccess = true };
     }
 
-    public static Result<T> Faliure(ErrorCodes errorCode, string errorMessage = null)
+    public static Result<T> Failure(ErrorCodes errorCode, string errorMessage = null)
     {
         return new Result<T> { ErrorCode = errorCode, ErrorMessage = errorMessage, IsSuccess = false };
     }

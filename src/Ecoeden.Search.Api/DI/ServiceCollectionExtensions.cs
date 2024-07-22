@@ -2,6 +2,7 @@
 using Ecoeden.Search.Api.Middlewares;
 using Ecoeden.Search.Api.Models.Core;
 using Ecoeden.Search.Api.Models.Enums;
+using Ecoeden.Search.Api.Services.Search;
 using Ecoeden.Search.Api.Swagger;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -63,6 +64,9 @@ public static class ServiceCollectionExtensions
         {
             options.InvalidModelStateResponseFactory = HandleFrameworkValidationFailure();
         });
+
+        // custom service registration
+        services.AddScoped(typeof(ISearchService<>), typeof(SearchService<>));
 
         return services;
     }

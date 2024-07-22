@@ -13,7 +13,8 @@ var swaggerConfiguration = new SwaggerConfiguration(apiName, apiDescription, api
 var logger = Logging.GetLogger(builder.Configuration, builder.Environment);
 builder.Host.UseSerilog(logger);
 
-builder.Services.AddApplicationServices(builder.Configuration, swaggerConfiguration);
+builder.Services.AddApplicationServices(builder.Configuration, swaggerConfiguration)
+    .ConfigureOptions(builder.Configuration);
 
 var app = builder.Build();
 
