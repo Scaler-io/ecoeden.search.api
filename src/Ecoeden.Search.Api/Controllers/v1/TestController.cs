@@ -1,23 +1,23 @@
 ﻿using Asp.Versioning;
 using Ecoeden.Search.Api.Entities;
+using Ecoeden.Search.Api.Models.Core;
+using Ecoeden.Search.Api.Services.Pagination;
 using Ecoeden.Search.Api.Services.Search;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ecoeden.Search.Api.Controllers.v1;
 
-[ApiController]
 [ApiVersion("1")]
-[Route("api/v{version:apiVersion}")]
-public class TestController : ControllerBase
+public class TestController(ILogger logger, 
+    ISearchService<ProductSearchSummary> searchService, 
+    IPaginatedSearchService<ProductSearchSummary> _paginatedSearchService) 
+    : ApiBaseController(logger)
 {
-    private readonly ISearchService<ProductSearchSummary> _searchService;
+    private readonly ISearchService<ProductSearchSummary> _searchService = searchService;
+    private readonly IPaginatedSearchService<ProductSearchSummary> _paginatedSearchService = _paginatedSearchService;
 
-    public TestController(ISearchService<ProductSearchSummary> searchService)
-    {
-        _searchService = searchService;
-    }
 
-    [HttpGet]
+    [HttpPost]
     public async Task<IActionResult> TestGet()
     {
         ProductSearchSummary productSummary = new()
@@ -27,12 +27,39 @@ public class TestController : ControllerBase
             Category = "Sample category",
             ImageFile = "http://ecoeden.com/sampleImage",
             Slug = "sample-product",
-            CreatedOn = DateTime.UtcNow.ToString("dd/MM/yyyy"),
-            LastUpdatedOn = DateTime.UtcNow.ToString("dd/MM/yyyy")
+            CreatedOn = DateTime.UtcNow,
+            LastUpdatedOn = DateTime.UtcNow
+        };
+
+        ProductSearchSummary productSummary2 = new()
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Bad product",
+            Category = "Bad product category",
+            ImageFile = "http://ecoeden.com/sampleImage",
+            Slug = "bad-product",
+            CreatedOn = DateTime.UtcNow,
+            LastUpdatedOn = DateTime.UtcNow
         };
 
         var result = await _searchService.SeedDocumentAsync(productSummary, productSummary.Id, "product-search-index");
+        var result2 = await _searchService.SeedDocumentAsync(productSummary2, productSummary2.Id, "product-search-index");
 
+        return Ok("Done");
+    }
+
+    [HttpGet("count")]
+    public async Task<IActionResult> TestPost([FromQuery]RequestQuery query)
+    {
+        var result = await _paginatedSearchService.GetCount(Guid.NewGuid().ToString(), "product-search-index", query);
+
+        return Ok(result);
+    }
+
+    [HttpGet("products")]
+    public async Task<IActionResult> TestGetProduct([FromQuery] RequestQuery query)
+    {
+        var result = await _paginatedSearchService.GetPaginatedData(query, Guid.NewGuid().ToString(), "product-search-index");
         return Ok(result);
     }
 }

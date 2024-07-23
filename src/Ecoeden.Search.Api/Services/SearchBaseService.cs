@@ -3,9 +3,9 @@ using Ecoeden.Search.Api.Extensions;
 using Microsoft.Extensions.Options;
 using Nest;
 
-namespace Ecoeden.Search.Api.Services.Search;
+namespace Ecoeden.Search.Api.Services;
 
-public class SearchBaseService
+public class SearchBaseService : QueryBuilderBaseService
 {
     protected ElasticClient ElasticsearchClient { get; }
     protected ILogger _logger;

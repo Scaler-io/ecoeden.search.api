@@ -26,12 +26,18 @@
 	<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
 	<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.5.0" />
 	<PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="8.0.2" />
+	<PackageReference Include="FluentValidation" Version="11.9.2" />
+	<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Using Include="Serilog.ILogger">
       <Alias>ILogger</Alias>
     </Using>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Swagger\Examples\" />
   </ItemGroup>
 
 </Project>

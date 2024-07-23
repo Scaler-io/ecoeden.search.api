@@ -1,0 +1,96 @@
+﻿using Ecoeden.Search.Api.Models.Core;
+using Nest;
+
+namespace Ecoeden.Search.Api.Services;
+
+public class QueryBuilderBaseService
+{
+    protected BoolQuery BuildBoolQuery(RequestQuery query)
+    {
+        var mustQueries = new List<QueryContainer>();
+        var filterQueries = new List<QueryContainer>();
+
+
+        var fieldQuery = BuildFieldQuery(query.Filters);
+        if (fieldQuery != null)
+        {
+            mustQueries.Add(fieldQuery);
+        }
+
+        var timeRangeQuery = BuildTimeRangeQuery(query.StartTime, query.EndTime, query.TimeField);
+        if (timeRangeQuery != null)
+        {
+            filterQueries.Add(timeRangeQuery);
+        }
+
+        var fullTextSearchQuery = BuildFullTextSearchQuery(query.MatchPhrase, query.MatchPhraseField);
+        if (fullTextSearchQuery != null)
+        {
+            mustQueries.Add(fullTextSearchQuery);
+        }
+
+        return new()
+        {
+            Must = mustQueries,
+            Filter = filterQueries
+        };
+    }
+
+    private QueryContainer BuildFieldQuery(Dictionary<string, string> filters)
+    {
+        if (filters == null) return null;
+        var queryContainer = new QueryContainer();
+
+        foreach (var filter in filters)
+        {
+            queryContainer &= new MatchQuery
+            {
+                Field = filter.Key,
+                Query = filter.Value
+            };
+        }
+
+        return queryContainer;
+
+    }
+
+    private QueryContainer BuildTimeRangeQuery(DateTime? startTime, DateTime? endTime, string timeField)
+    {
+        if (!startTime.HasValue && !endTime.HasValue)
+        {
+            return null;
+        }
+
+        var dateRangeQuery = new DateRangeQuery
+        {
+            Field = timeField
+        };
+
+        if (startTime.HasValue)
+        {
+            dateRangeQuery.GreaterThanOrEqualTo = DateMath.Anchored(startTime.Value);
+        }
+
+        if (endTime.HasValue)
+        {
+            dateRangeQuery.LessThanOrEqualTo = DateMath.Anchored(endTime.Value);
+        }
+
+        return dateRangeQuery;
+    }
+
+    private QueryContainer BuildFullTextSearchQuery(string matchPhrase, string matchPhraseField)
+    {
+        if (string.IsNullOrEmpty(matchPhrase) || string.IsNullOrEmpty(matchPhraseField))
+        {
+            return null;
+        }
+
+        return new MultiMatchQuery
+        {
+            Fields = matchPhraseField,
+            Query = matchPhrase,
+            Type = TextQueryType.BestFields
+        };
+    }
+}

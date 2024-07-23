@@ -2,6 +2,7 @@
 using Ecoeden.Search.Api.Middlewares;
 using Ecoeden.Search.Api.Models.Core;
 using Ecoeden.Search.Api.Models.Enums;
+using Ecoeden.Search.Api.Services.Pagination;
 using Ecoeden.Search.Api.Services.Search;
 using Ecoeden.Search.Api.Swagger;
 using Microsoft.AspNetCore.Mvc;
@@ -67,6 +68,7 @@ public static class ServiceCollectionExtensions
 
         // custom service registration
         services.AddScoped(typeof(ISearchService<>), typeof(SearchService<>));
+        services.AddScoped(typeof(IPaginatedSearchService<>), typeof(PaginatedSearchService<>));
 
         return services;
     }

@@ -6,6 +6,6 @@ public class ProductSearchSummary
     public string Category { get; set; }
     public string ImageFile { get; set; }
     public string Slug { get; set; }
-    public string CreatedOn { get; set; }
-    public string LastUpdatedOn { get; set; }
+    public DateTime CreatedOn { get; set; }
+    public DateTime LastUpdatedOn { get; set; }
 }

@@ -10,8 +10,7 @@ using Nest;
 namespace Ecoeden.Search.Api.Services.Search;
 
 public class SearchService<TDocument>(ILogger logger, IOptions<ElasticSearchOption> options) 
-    : SearchBaseService(logger, options), ISearchService<TDocument> 
-    where TDocument : class
+    : SearchBaseService(logger, options), ISearchService<TDocument> where TDocument : class
 {
     public async Task<Result<bool>> SeedDocumentAsync(TDocument document, string id, string index)
     {
