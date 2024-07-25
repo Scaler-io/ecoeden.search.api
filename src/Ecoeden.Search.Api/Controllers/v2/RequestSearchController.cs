@@ -26,4 +26,16 @@ public class RequestSearchController(ILogger logger, ISearchServiceFactory facto
         Logger.Here().MethodExited();
         return OkOrFailure(result);
     }
+
+    [HttpPost("search/{indexName}/count")]
+    [SwaggerHeader("CorrelationId", Description = "expects unique correlation id")]
+    [SwaggerOperation(OperationId = "SearchCount", Description = "Fetches the total document count from elastic search")]
+    public async Task<IActionResult> SearchCount([FromBody] RequestQuery query, [FromRoute] string indexName)
+    {
+        Logger.Here().MethodEntered();
+        var service = indexName.IsProductSearchIndex() ? _factory.CreatePaginatedService<ProductSearchSummary>() : null;
+        var result = await service.GetCount(RequestInformation.CorrelationId, indexName, null);
+        Logger.Here().MethodExited();
+        return OkOrFailure(result);
+    }
 }
