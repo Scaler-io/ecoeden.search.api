@@ -14,7 +14,8 @@ var logger = Logging.GetLogger(builder.Configuration, builder.Environment);
 builder.Host.UseSerilog(logger);
 
 builder.Services.AddApplicationServices(builder.Configuration, swaggerConfiguration)
-    .ConfigureOptions(builder.Configuration);
+    .ConfigureOptions(builder.Configuration)
+    .ConfigureHttpClients(builder.Configuration);
 
 var app = builder.Build();
 

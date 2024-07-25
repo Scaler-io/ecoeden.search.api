@@ -1,17 +1,26 @@
-﻿using Ecoeden.Search.Api.Configurations;
+﻿using AutoMapper;
+using Ecoeden.Search.Api.Configurations;
+using Ecoeden.Search.Api.Entities;
 using Ecoeden.Search.Api.Extensions;
 using Ecoeden.Search.Api.Models.Constants;
 using Ecoeden.Search.Api.Models.Core;
 using Ecoeden.Search.Api.Models.Enums;
+using Ecoeden.Search.Api.Providers;
 using Elasticsearch.Net;
 using Microsoft.Extensions.Options;
 using Nest;
 
 namespace Ecoeden.Search.Api.Services.Search;
 
-public class SearchService<TDocument>(ILogger logger, IOptions<ElasticSearchOption> options) 
+public class SearchService<TDocument>(ILogger logger, 
+    CatalogueApiProvider catalogueApiProvider, 
+    IOptions<ElasticSearchOption> options,
+    IMapper mapper) 
     : SearchBaseService(logger, options), ISearchService<TDocument> where TDocument : class
 {
+    private readonly CatalogueApiProvider _catalogueApiProvider = catalogueApiProvider;
+    private readonly IMapper _mapper = mapper;
+
     public async Task<Result<bool>> SeedDocumentAsync(TDocument document, string id, string index)
     {
         _logger.Here().MethodEntered();
@@ -70,7 +79,7 @@ public class SearchService<TDocument>(ILogger logger, IOptions<ElasticSearchOpti
         return Result<bool>.Success(true);
     }
 
-    public async Task<Result<bool>> SearchReIndex(IEnumerable<TDocument> documents, string index)
+    public async Task<Result<bool>> SearchReIndex(string index)
     {
         _logger.Here().MethodEntered();
         _logger.Here().Information("Request - reindex search data for {@index}", index);
@@ -87,7 +96,10 @@ public class SearchService<TDocument>(ILogger logger, IOptions<ElasticSearchOpti
 
         await CreateNewIndex<TDocument>(index);
 
-        var bulkResponse = await ElasticsearchClient.BulkAsync(b => b.Index(index).IndexMany(documents));
+        var results = await _catalogueApiProvider.GetProductCatalogues();
+        var searchSummaries = _mapper.Map<IEnumerable<ProductSearchSummary>>(results.Data);
+
+        var bulkResponse = await ElasticsearchClient.BulkAsync(b => b.Index(index).IndexMany(searchSummaries));
 
         if (!bulkResponse.IsValid)
         {

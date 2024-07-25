@@ -1,6 +1,7 @@
 ﻿using Asp.Versioning;
 using Ecoeden.Search.Api.Entities;
 using Ecoeden.Search.Api.Models.Core;
+using Ecoeden.Search.Api.Providers;
 using Ecoeden.Search.Api.Services.Pagination;
 using Ecoeden.Search.Api.Services.Search;
 using Microsoft.AspNetCore.Mvc;
@@ -10,12 +11,14 @@ namespace Ecoeden.Search.Api.Controllers.v1;
 [ApiVersion("1")]
 public class TestController(ILogger logger, 
     ISearchService<ProductSearchSummary> searchService, 
-    IPaginatedSearchService<ProductSearchSummary> _paginatedSearchService) 
+    IPaginatedSearchService<ProductSearchSummary> _paginatedSearchService,
+    CatalogueApiProvider catalogueApiProvider
+    ) 
     : ApiBaseController(logger)
 {
     private readonly ISearchService<ProductSearchSummary> _searchService = searchService;
     private readonly IPaginatedSearchService<ProductSearchSummary> _paginatedSearchService = _paginatedSearchService;
-
+    private readonly CatalogueApiProvider _catalogueApiProvider = catalogueApiProvider;
 
     [HttpPost]
     public async Task<IActionResult> TestGet()
@@ -61,5 +64,12 @@ public class TestController(ILogger logger,
     {
         var result = await _paginatedSearchService.GetPaginatedData(query, Guid.NewGuid().ToString(), "product-search-index");
         return Ok(result);
+    }
+
+    [HttpGet("catalogue/identity")]
+    public async Task<IActionResult> TestTokenEndpoint()
+    {
+        var result = await _catalogueApiProvider.GetProductCatalogues();
+        return OkOrFailure(result);
     }
 }

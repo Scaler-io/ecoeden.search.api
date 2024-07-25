@@ -9,7 +9,7 @@ public static class ServiCollectionConfigurationExtensions
         services.Configure<LoggingOption>(configuration.GetSection(LoggingOption.OptionName));
         services.Configure<AppConfigOption>(configuration.GetSection(AppConfigOption.OptionName));
         services.Configure<ElasticSearchOption>(configuration.GetSection(ElasticSearchOption.OptionName));
-
+        services.Configure<ProviderConfigurationOption>(configuration.GetSection(ProviderConfigurationOption.OptionName));
         return services;
     }
 }

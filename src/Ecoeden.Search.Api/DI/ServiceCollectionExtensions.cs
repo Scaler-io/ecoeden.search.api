@@ -2,6 +2,7 @@
 using Ecoeden.Search.Api.Middlewares;
 using Ecoeden.Search.Api.Models.Core;
 using Ecoeden.Search.Api.Models.Enums;
+using Ecoeden.Search.Api.Services.Factory;
 using Ecoeden.Search.Api.Services.Pagination;
 using Ecoeden.Search.Api.Services.Search;
 using Ecoeden.Search.Api.Swagger;
@@ -49,6 +50,8 @@ public static class ServiceCollectionExtensions
             swaggerConfiguration.SetupSwaggerGenService(option, provider);
         });
 
+        services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
         // setup api versioning
         services.AddApiVersioning(options =>
         {
@@ -67,6 +70,7 @@ public static class ServiceCollectionExtensions
         });
 
         // custom service registration
+        services.AddScoped<ISearchServiceFactory, SearchServiceFactory>();
         services.AddScoped(typeof(ISearchService<>), typeof(SearchService<>));
         services.AddScoped(typeof(IPaginatedSearchService<>), typeof(PaginatedSearchService<>));
 
