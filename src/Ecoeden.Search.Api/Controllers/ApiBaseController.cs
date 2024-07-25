@@ -39,7 +39,7 @@ public class ApiBaseController(ILogger logger) : ControllerBase
         };
     }
 
-    private static ObjectResult InternalServerError(ApiResponse response)
+    protected static ObjectResult InternalServerError(ApiResponse response)
     {
         return new ObjectResult(response)
         {

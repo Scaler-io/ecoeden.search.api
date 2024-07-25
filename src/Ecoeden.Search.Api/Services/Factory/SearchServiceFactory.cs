@@ -1,4 +1,5 @@
-﻿using Ecoeden.Search.Api.Services.Search;
+﻿using Ecoeden.Search.Api.Services.Pagination;
+using Ecoeden.Search.Api.Services.Search;
 
 namespace Ecoeden.Search.Api.Services.Factory;
 
@@ -11,5 +12,13 @@ public class SearchServiceFactory(IServiceProvider serviceProvider) : ISearchSer
         var service = scope.ServiceProvider;
 
         return service.GetRequiredService<ISearchService<TDocument>>();
+    }
+
+    public IPaginatedSearchService<TDocument> CreatePaginatedService<TDocument>() where TDocument : class
+    {
+        using var scope = _serviceProvider.CreateScope();
+        var service = scope.ServiceProvider;
+
+        return service.GetRequiredService<IPaginatedSearchService<TDocument>>();
     }
 }

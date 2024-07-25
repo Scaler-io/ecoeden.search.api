@@ -1,4 +1,5 @@
 ﻿using Ecoeden.Search.Api.Configurations;
+using Ecoeden.Search.Api.Entities;
 using Ecoeden.Search.Api.Extensions;
 using Microsoft.Extensions.Options;
 using Nest;
@@ -25,7 +26,8 @@ public class SearchBaseService : QueryBuilderBaseService
         _logger.Here().Information("Creating new index with name {index}", index);
 
         var createIndexResponse = await ElasticsearchClient.Indices.CreateAsync(index, c => c
-            .Map<TDocument>(m => m.AutoMap())
+            .Map<ProductSearchSummary>(m => m
+            .AutoMap())
             .Settings(s => s
                 .NumberOfShards(1)
                 .NumberOfReplicas(0)

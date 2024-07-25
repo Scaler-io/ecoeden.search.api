@@ -65,26 +65,7 @@ public class PaginatedSearchService<TDocument>(ILogger logger, IOptions<ElasticS
                        .Size(query.PageSize)
                        .From((query.PageIndex - 1) * query.PageSize)
                        .Sort(sort => sort.Field(query.SortField, query.SortOrder == "Asc" ? SortOrder.Ascending : SortOrder.Descending))
-                       .Query(q => !query.IsFilteredQuery ? q.MatchAll() : q.Bool(b => BuildBoolQuery(query))));
-
-        //if (!query.IsFilteredQuery)
-        //{
-        //    var searchResponse = await ElasticsearchClient.SearchAsync<TDocument>(s => s
-        //        .Index(searchIndex)
-        //        .Size(query.PageSize)
-        //        .From((query.PageIndex - 1) * query.PageSize)
-        //        .Sort(sort => sort.Field(query.SortField, query.SortOrder == "Asc" ? SortOrder.Ascending : SortOrder.Descending))
-        //        .Query(q => q.MatchAll()));
-
-        //}else
-        //{
-        //    searchResponse = await ElasticsearchClient.SearchAsync<TDocument>(s => s
-        //        .Index(searchIndex)
-        //        .Size(query.PageSize)
-        //        .From((query.PageIndex - 1) * query.PageSize)
-        //        .Sort(sort => sort.Field(query.SortField, query.SortOrder == "Asc" ? SortOrder.Ascending : SortOrder.Descending))
-        //        .Query(q => q.Bool(b => BuildBoolQuery(query))));
-        //}
+                       .Query(q => !query.IsFilteredQuery ? q.MatchAll() : BuildBoolQuery(query)));
 
         if (!searchResponse.IsValid)
         {

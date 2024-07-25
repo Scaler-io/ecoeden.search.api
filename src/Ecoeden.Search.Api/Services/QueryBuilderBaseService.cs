@@ -5,13 +5,14 @@ namespace Ecoeden.Search.Api.Services;
 
 public class QueryBuilderBaseService
 {
+    
     protected BoolQuery BuildBoolQuery(RequestQuery query)
     {
         var mustQueries = new List<QueryContainer>();
         var filterQueries = new List<QueryContainer>();
 
 
-        var fieldQuery = BuildFieldQuery(query.Filters);
+        var fieldQuery = BuildTermQuery(query.Filters);
         if (fieldQuery != null)
         {
             mustQueries.Add(fieldQuery);
@@ -36,22 +37,21 @@ public class QueryBuilderBaseService
         };
     }
 
-    private QueryContainer BuildFieldQuery(Dictionary<string, string> filters)
+    private QueryContainer BuildTermQuery(Dictionary<string, string> filters)
     {
         if (filters == null) return null;
         var queryContainer = new QueryContainer();
 
         foreach (var filter in filters)
         {
-            queryContainer &= new MatchQuery
+            queryContainer &= new TermQuery
             {
                 Field = filter.Key,
-                Query = filter.Value
+                Value = filter.Value
             };
         }
 
         return queryContainer;
-
     }
 
     private QueryContainer BuildTimeRangeQuery(DateTime? startTime, DateTime? endTime, string timeField)
