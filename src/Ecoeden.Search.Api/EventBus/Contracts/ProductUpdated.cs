@@ -10,5 +10,5 @@ public class ProductUpdated : GenericEvent
     public string Category { get; set; }
     public string ImageFile { get; set; }
     public string Slug { get; set; }
-    protected override GenericEventType GenericEventType { get; set; }
+    protected override GenericEventType GenericEventType { get; set; } = GenericEventType.ProductUpdated;
 }
