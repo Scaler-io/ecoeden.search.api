@@ -62,7 +62,7 @@ public class SearchService<TDocument>(ILogger logger,
         var docId = documentResponse.Hits.First().Id;
         var data = documentResponse.Documents.First();
         var documentUpdateResponse = await ElasticsearchClient.UpdateAsync<TDocument, object>(
-                new DocumentPath<TDocument>(docId),
+                new DocumentPath<TDocument>(docId).Index(index),
                 u => u.Doc(document)
                     .DocAsUpsert()
             );
