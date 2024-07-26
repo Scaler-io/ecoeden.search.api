@@ -2,8 +2,31 @@ version: '3.4'
 
 services:
   ecoeden.search.api:
+    container_name: ecoeden.search.api
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - Logging__IncludeScopes=false
+      - "Logging__LogOutputTemplate=[{Timestamp:dd-MM-yyyy HH:mm:ss, fff}] {Level} {Properties} [CorrelationId:{CorrelationId}] [Machine: {MachineName}] {CallerType}:{MemberName} {Message}{NewLine}{Exception}{NewLine}"
+      - Logging__Console__Enabled=true
+      - Logging__Console__LogLevel=Debug
+      - Logging__Elastic__Enabled=true
+      - Logging__Elastic__LogLevel=Debug
+      - AppConfigurations__ApplicationIdentifier=Ecoeden.User.Api
+      - AppConfigurations__ApplicationEnvironment=docker
+      - AppConfigurations__HealthCheckTimeOutInSeconds=2
+      - ApiDescription=Search api description
+      - ApiOriginHost=localhost:5003
+      - ElasticSearch__Uri=http://elasticsearch:9200 
+      - ElasticSearch__ProductIndex=product-search-index
+      - IdentityServiceUrl=http://Ecoeden.IdentityServer
+      - ProviderSettings__CatalogueApiSettings__BaseUrl=http://ecoeden.catalogue.api
+      - ProviderSettings__CatalogueApiSettings__ClientId=ecoeden.catalogue.api
+      - ProviderSettings__CatalogueApiSettings__ClientSecret=511536EF-F270-4058-80CA-1C89C192F69A
+      - "ProviderSettings__CatalogueApiSettings__Scope=catalogueapi:read catalogueapi:write"
+      - EventBus__Host=rabbitmq
+      - EventBus__Username=guest
+      - EventBus__Password=guest 
     ports:
-      - "8080"
+      - "5003:8080"
+    networks:
+      - ecoeden_dev_net  

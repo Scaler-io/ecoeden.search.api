@@ -6,3 +6,7 @@ services:
     build:
       context: .
       dockerfile: Ecoeden.Search.Api/Dockerfile
+
+networks:
+  ecoeden_dev_net:
+    external: true
