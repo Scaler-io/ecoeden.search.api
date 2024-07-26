@@ -1,4 +1,6 @@
 ﻿using Asp.Versioning.ApiExplorer;
+using Ecoeden.Search.Api.Configurations;
+using Ecoeden.Search.Api.EventBus.Consumers;
 using Ecoeden.Search.Api.Middlewares;
 using Ecoeden.Search.Api.Models.Core;
 using Ecoeden.Search.Api.Models.Enums;
@@ -11,6 +13,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.Filters;
+using MassTransit;
 
 namespace Ecoeden.Search.Api.DI;
 
@@ -73,6 +76,23 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISearchServiceFactory, SearchServiceFactory>();
         services.AddScoped(typeof(ISearchService<>), typeof(SearchService<>));
         services.AddScoped(typeof(IPaginatedSearchService<>), typeof(PaginatedSearchService<>));
+
+        services.AddMassTransit(config =>
+        {
+            config.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("search", false));
+            config.AddConsumersFromNamespaceContaining<ProductCreatedConsumer>();
+            config.UsingRabbitMq((context, cfg) =>
+            {
+                var rabbitmq = configuration.GetSection(EventBusOptions.OptionName).Get<EventBusOptions>();
+                cfg.Host(rabbitmq.Host, "/", host =>
+                {
+                    host.Username(rabbitmq.Username);
+                    host.Password(rabbitmq.Password);
+                });
+
+                cfg.ConfigureEndpoints(context);
+            });
+        });
 
         return services;
     }
