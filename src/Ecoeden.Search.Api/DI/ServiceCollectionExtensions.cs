@@ -14,6 +14,9 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.Filters;
 using MassTransit;
+using Ecoeden.Search.Api.Data;
+using Microsoft.EntityFrameworkCore;
+using Ecoeden.Search.Api.Services.EventRecording;
 
 namespace Ecoeden.Search.Api.DI;
 
@@ -94,6 +97,12 @@ public static class ServiceCollectionExtensions
             });
         });
 
+        //  sql server dabase services
+        services.AddDbContext<EcoedenDbContext>(options =>
+        {
+            options.UseSqlServer(configuration.GetConnectionString("Sqlserver"));
+        });
+        services.AddScoped<IEventRecorderService, EventRecorderService>();
         return services;
     }
 

@@ -3,6 +3,7 @@ using Contracts.Events;
 using Ecoeden.Search.Api.Configurations;
 using Ecoeden.Search.Api.Entities;
 using Ecoeden.Search.Api.Extensions;
+using Ecoeden.Search.Api.Services.EventRecording;
 using Ecoeden.Search.Api.Services.Search;
 using MassTransit;
 using Microsoft.Extensions.Options;
@@ -13,7 +14,8 @@ public class ProductDeletedConsumer(ILogger logger,
     IMapper mapper,
     IPublishEndpoint endpoint,
     ISearchService<ProductSearchSummary> searchService,
-    IOptions<ElasticSearchOption> elasticOptions) : IConsumer<ProductDeleted>
+    IOptions<ElasticSearchOption> elasticOptions,
+    IEventRecorderService eventRecorderService) : ConsumerBase<ProductDeleted>(eventRecorderService), IConsumer<ProductDeleted>
 {
     private readonly ILogger _logger = logger;
     private readonly IMapper _mapper = mapper;
@@ -30,8 +32,6 @@ public class ProductDeletedConsumer(ILogger logger,
             .WithCorrelationId(context.Message.CorrelationId)
             .Information("Message processing started for the event {type}", typeof(ProductCreated).Name);
 
-        // store the event history in event record table - for later publish
-
         // update product to open document [Elastic search]
 
         var result = await _searchService.RemoveDocumentAsync(new() { { "id", context.Message .Id } }, _elasticOptions.ProductIndex);
@@ -43,7 +43,10 @@ public class ProductDeletedConsumer(ILogger logger,
                 .ForContext("Event", typeof(ProductCreated).Name)
                 .WithCorrelationId(context.Message.CorrelationId)
                 .Information("Message processing failed. {0} - {1}", result.ErrorCode, result.ErrorMessage);
+            await RecordEvent(context, Models.Enums.EventStatus.Failed);
         }
+
+        await RecordEvent(context, Models.Enums.EventStatus.Published);
 
         _logger.Here()
             .ForContext("MessageId", context.MessageId)
