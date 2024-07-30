@@ -9,6 +9,7 @@ using Ecoeden.Search.Api.Providers;
 using Elasticsearch.Net;
 using Microsoft.Extensions.Options;
 using Nest;
+using System.Globalization;
 
 namespace Ecoeden.Search.Api.Services.Search;
 
@@ -97,7 +98,16 @@ public class SearchService<TDocument>(ILogger logger,
         await CreateNewIndex<TDocument>(index);
 
         var results = await _catalogueApiProvider.GetProductCatalogues();
-        var searchSummaries = _mapper.Map<IEnumerable<ProductSearchSummary>>(results.Data);
+        var searchSummaries = results.Data.Select(product => new ProductSearchSummary
+        {
+            Category = product.Category,
+            CreatedOn = DateTime.ParseExact(product.MetaData.CreatedAt, "dd/MM/yyyy HH:mm:ss tt", CultureInfo.InvariantCulture),
+            LastUpdatedOn = DateTime.ParseExact(product.MetaData.UpdatedAt, "dd/MM/yyyy HH:mm:ss tt", CultureInfo.InvariantCulture),
+            Id = product.Id,
+            ImageFile = product.ImageFile,
+            Name = product.Name,
+            Slug = product.Slug,
+        });
 
         var bulkResponse = await ElasticsearchClient.BulkAsync(b => b.Index(index).IndexMany(searchSummaries));
 

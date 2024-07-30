@@ -1,18 +1,24 @@
 ﻿using Ecoeden.Search.Api.Configurations;
+using Ecoeden.Search.Api.Extensions;
 using IdentityModel.Client;
 
 namespace Ecoeden.Search.Api.Providers;
 
-public class IdentityServiceProvider(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+public class IdentityServiceProvider(IHttpClientFactory httpClientFactory, IConfiguration configuration, ILogger logger)
 {
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
     private readonly IConfiguration _configuration = configuration;
+    private readonly ILogger _logger = logger;
 
     public async Task<string> GetCatalogueAccessToken(CatalogueApiSettings apiSettings)
     {
         var client = _httpClientFactory.CreateClient();
 
-        var discoveryDocument = await client.GetDiscoveryDocumentAsync(_configuration["IdentityServiceUrl"]);
+        var discoveryDocument = await client.GetDiscoveryDocumentAsync(new DiscoveryDocumentRequest
+        {
+            Address = _configuration["IdentityServiceUrl"],
+            Policy = new DiscoveryPolicy { RequireHttps = false, ValidateIssuerName = false, ValidateEndpoints = false }      
+        });
 
         if (discoveryDocument.IsError)
         {
@@ -26,6 +32,8 @@ public class IdentityServiceProvider(IHttpClientFactory httpClientFactory, IConf
             ClientSecret = apiSettings.ClientSecret,
             Scope = apiSettings.Scope,
         });
+
+        _logger.Here().Information("token response {@token}", response);
 
         if (response.IsError)
         {
