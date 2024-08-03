@@ -17,7 +17,7 @@ public class SearchSeedController(ILogger logger, IOptions<ElasticSearchOption> 
     private readonly ISearchServiceFactory _factory = factory;
     private readonly ElasticSearchOption _elasticSearchOption = elasticOptions.Value;
 
-    [HttpPost("search/seed")]
+    [HttpPost("seed")]
     [SwaggerHeader("CorrelationId", Description = "expects unique correlation id")]
     [SwaggerOperation(OperationId = "SeedElasticSearch", Description = "seeds elastic search odata store")]
     public async Task<IActionResult> SeedElasticSearch()
