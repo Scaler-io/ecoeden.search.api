@@ -1,7 +1,6 @@
 ﻿using Asp.Versioning;
 using Ecoeden.Search.Api.Entities;
 using Ecoeden.Search.Api.Extensions;
-using Ecoeden.Search.Api.Models.Contracts;
 using Ecoeden.Search.Api.Models.Core;
 using Ecoeden.Search.Api.Services.Factory;
 using Ecoeden.Search.Api.Swagger;
@@ -15,7 +14,7 @@ public class RequestSearchController(ILogger logger, ISearchServiceFactory facto
 {
     private readonly ISearchServiceFactory _factory = factory;
 
-    [HttpPost("search/{indexName}")]
+    [HttpPost("{indexName}")]
     [SwaggerHeader("CorrelationId", Description = "expects unique correlation id")]
     [SwaggerOperation(OperationId = "Search", Description = "searches open data from elastic search")]
     public async Task<IActionResult> Search([FromBody] RequestQuery query, [FromRoute] string indexName)
@@ -27,7 +26,7 @@ public class RequestSearchController(ILogger logger, ISearchServiceFactory facto
         return OkOrFailure(result);
     }
 
-    [HttpPost("search/{indexName}/count")]
+    [HttpPost("{indexName}/count")]
     [SwaggerHeader("CorrelationId", Description = "expects unique correlation id")]
     [SwaggerOperation(OperationId = "SearchCount", Description = "Fetches the total document count from elastic search")]
     public async Task<IActionResult> SearchCount([FromBody] RequestQuery query, [FromRoute] string indexName)
