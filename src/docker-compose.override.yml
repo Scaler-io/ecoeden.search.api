@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   ecoeden.search.api:
-    container_name: ecoeden.search.api
+    container_name: Ecoeden.Search.Api
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker
       - Logging__IncludeScopes=false
