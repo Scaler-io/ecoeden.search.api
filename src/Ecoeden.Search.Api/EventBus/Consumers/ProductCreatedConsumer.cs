@@ -13,8 +13,8 @@ using Newtonsoft.Json;
 
 namespace Ecoeden.Search.Api.EventBus.Consumers;
 
-public class ProductCreatedConsumer(ILogger logger, 
-    ISearchService<ProductSearchSummary> searchService, 
+public class ProductCreatedConsumer(ILogger logger,
+    ISearchService<ProductSearchSummary> searchService,
     IMapper mapper,
     IOptions<ElasticSearchOption> elasticOptions,
     IEventRecorderService eventRecorderService) : ConsumerBase<ProductCreated>(eventRecorderService), IConsumer<ProductCreated>

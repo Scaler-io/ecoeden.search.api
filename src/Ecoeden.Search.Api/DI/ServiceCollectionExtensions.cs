@@ -17,12 +17,13 @@ using MassTransit;
 using Ecoeden.Search.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Ecoeden.Search.Api.Services.EventRecording;
+using Ecoeden.Search.Api.Services.HealthStatus;
 
 namespace Ecoeden.Search.Api.DI;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration, 
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration,
         SwaggerConfiguration swaggerConfiguration)
     {
         var environment = services.BuildServiceProvider().GetRequiredService<IWebHostEnvironment>();
@@ -42,6 +43,12 @@ public static class ServiceCollectionExtensions
             });
 
         services.AddHttpContextAccessor();
+
+        services.AddScoped<IHealthCheckConfiguration, HealthCheckConfiguration>();
+        services.AddScoped<IHealthCheck, SqlDbHealthCheck>();
+        services.AddScoped<IHealthCheck, MessageBrokerHealthCheck>();
+        services.AddScoped<IHealthCheck, ElasticClientHealthCheck>();
+        services.AddScoped<IHealthCheckService, HealthCheckService>();
 
         services.AddTransient<CorrelationHeaderEnricher>()
             .AddTransient<RequestLoggerMiddleware>()
@@ -118,7 +125,7 @@ public static class ServiceCollectionExtensions
             {
                 Errors = []
             };
-            
+
             foreach (var error in errors)
             {
                 FieldLevelError fieldLevelError = new()
