@@ -1,7 +1,7 @@
-﻿using AutoMapper;
-using Ecoeden.Search.Api.Configurations;
+﻿using Ecoeden.Search.Api.Configurations;
 using Ecoeden.Search.Api.Entities;
 using Ecoeden.Search.Api.Extensions;
+using Ecoeden.Search.Api.Mappers;
 using Ecoeden.Search.Api.Models.Constants;
 using Ecoeden.Search.Api.Models.Core;
 using Ecoeden.Search.Api.Models.Enums;
@@ -9,25 +9,24 @@ using Ecoeden.Search.Api.Providers;
 using Elasticsearch.Net;
 using Microsoft.Extensions.Options;
 using Nest;
-using System.Globalization;
 
 namespace Ecoeden.Search.Api.Services.Search;
 
-public class SearchService<TDocument>(ILogger logger, 
-    CatalogueApiProvider catalogueApiProvider, 
-    IOptions<ElasticSearchOption> options,
-    IMapper mapper) 
+public class SearchService<TDocument>(ILogger logger,
+    CatalogueApiProvider catalogueApiProvider,
+    UserApiProvider userApiProvider,
+    IOptions<ElasticSearchOption> options)
     : SearchBaseService(logger, options), ISearchService<TDocument> where TDocument : class
 {
     private readonly CatalogueApiProvider _catalogueApiProvider = catalogueApiProvider;
-    private readonly IMapper _mapper = mapper;
+    private readonly UserApiProvider _userApiProvider = userApiProvider;
 
     public async Task<Result<bool>> SeedDocumentAsync(TDocument document, string id, string index)
     {
         _logger.Here().MethodEntered();
         _logger.Here().Information("Requesting - storing data to elastic search {index}", index);
 
-        if(!await IndexExist(index))
+        if (!await IndexExist(index))
         {
             await CreateNewIndex<TDocument>(index);
         }
@@ -47,7 +46,7 @@ public class SearchService<TDocument>(ILogger logger,
         return Result<bool>.Success(true);
 
     }
-    
+
     public async Task<Result<bool>> UpdateDocumentAsync(TDocument document, Dictionary<string, string> fieldValue, string index)
     {
         _logger.Here().MethodEntered();
@@ -97,19 +96,21 @@ public class SearchService<TDocument>(ILogger logger,
 
         await CreateNewIndex<TDocument>(index);
 
-        var results = await _catalogueApiProvider.GetProductCatalogues();
-        var searchSummaries = results.Data.Select(product => new ProductSearchSummary
-        {
-            Category = product.Category,
-            CreatedOn = DateTime.ParseExact(product.MetaData.CreatedAt, "dd/MM/yyyy HH:mm:ss tt", CultureInfo.InvariantCulture),
-            LastUpdatedOn = DateTime.ParseExact(product.MetaData.UpdatedAt, "dd/MM/yyyy HH:mm:ss tt", CultureInfo.InvariantCulture),
-            Id = product.Id,
-            ImageFile = product.ImageFile,
-            Name = product.Name,
-            Slug = product.Slug,
-        });
+        BulkResponse bulkResponse = new();
 
-        var bulkResponse = await ElasticsearchClient.BulkAsync(b => b.Index(index).IndexMany(searchSummaries));
+        switch (index)
+        {
+            case "product-search-index":
+                var productSearchSummaries = await GetProductsAsync();
+                bulkResponse = await ElasticsearchClient.BulkAsync(b => b.Index(index).IndexMany(productSearchSummaries));
+                break;
+            case "user-search-index":
+                var userSearchSummaries = await GetUsersAsync();
+                bulkResponse = await ElasticsearchClient.BulkAsync(b => b.Index(index).IndexMany(userSearchSummaries));
+                break;
+            default:
+                break;
+        }
 
         if (!bulkResponse.IsValid)
         {
@@ -148,5 +149,17 @@ public class SearchService<TDocument>(ILogger logger,
         _logger.Here().Information("Elastic document delete successful");
         _logger.Here().MethodExited();
         return Result<bool>.Success(true);
+    }
+
+    private async Task<IEnumerable<ProductSearchSummary>> GetProductsAsync()
+    {
+        var results = await _catalogueApiProvider.GetProductCatalogues();
+        return ProductMapper.Map(results.Data);
+    }
+
+    private async Task<IEnumerable<UserSearchSummary>> GetUsersAsync()
+    {
+        var results = await _userApiProvider.GetUsers();
+        return UserMapper.Map(results.Data);
     }
 }

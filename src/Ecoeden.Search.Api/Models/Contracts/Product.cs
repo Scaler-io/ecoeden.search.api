@@ -12,12 +12,3 @@ public class Product
     public string Sku { get; set; }
     public MetaData MetaData { get; set; }
 }
-
-
-public class MetaData
-{
-    public string CreatedAt { get; set; }
-    public string UpdatedAt { get; set; }
-    public string CreatedBy { get; set; }
-    public string UpdatedBy { get; set; }
-}

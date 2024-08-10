@@ -15,7 +15,7 @@ public class EventRecorderService(ILogger logger, EcoedenDbContext context) : IE
     public async Task<Result<EventPublishHistory>> GetEvent(string correlationId)
     {
         _logger.Here().MethodEntered();
-        var result =  await _context.EventPublishHistories.FirstOrDefaultAsync(e => e.CorrelationId == correlationId);
+        var result = await _context.EventPublishHistories.FirstOrDefaultAsync(e => e.CorrelationId == correlationId);
         if (result is null)
         {
             _logger.Here().WithCorrelationId(correlationId).Error("{0} - No event was found", ErrorCodes.NotFound);
@@ -32,7 +32,7 @@ public class EventRecorderService(ILogger logger, EcoedenDbContext context) : IE
         _logger.Here().MethodEntered();
         _context.EventPublishHistories.Add(history);
         var result = await _context.SaveChangesAsync();
-        if(result < 1)
+        if (result < 1)
         {
             _logger.Here().WithCorrelationId(history.CorrelationId).Error("{0} - no recored was created", ErrorCodes.OperationFailed);
             return Result<bool>.Failure(ErrorCodes.OperationFailed);
@@ -56,7 +56,7 @@ public class EventRecorderService(ILogger logger, EcoedenDbContext context) : IE
             return Result<bool>.Failure(ErrorCodes.OperationFailed);
         }
 
-        _logger.Here().Information("Record is updated successfullt");
+        _logger.Here().Information("Record is updated successfully");
         _logger.Here().MethodExited();
         return Result<bool>.Success(true);
     }

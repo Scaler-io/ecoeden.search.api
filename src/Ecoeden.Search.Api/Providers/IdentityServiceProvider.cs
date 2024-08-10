@@ -10,14 +10,14 @@ public class IdentityServiceProvider(IHttpClientFactory httpClientFactory, IConf
     private readonly IConfiguration _configuration = configuration;
     private readonly ILogger _logger = logger;
 
-    public async Task<string> GetCatalogueAccessToken(CatalogueApiSettings apiSettings)
+    public async Task<string> GetAccessToken(ProviderConfigurationOption providerOption, string requestedClientName)
     {
         var client = _httpClientFactory.CreateClient();
 
         var discoveryDocument = await client.GetDiscoveryDocumentAsync(new DiscoveryDocumentRequest
         {
             Address = _configuration["IdentityServiceUrl"],
-            Policy = new DiscoveryPolicy { RequireHttps = false, ValidateIssuerName = false, ValidateEndpoints = false }      
+            Policy = new DiscoveryPolicy { RequireHttps = false, ValidateIssuerName = false, ValidateEndpoints = false }
         });
 
         if (discoveryDocument.IsError)
@@ -25,13 +25,7 @@ public class IdentityServiceProvider(IHttpClientFactory httpClientFactory, IConf
             throw new HttpRequestException(discoveryDocument.Error);
         }
 
-        var response = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
-        {
-            Address = discoveryDocument.TokenEndpoint,
-            ClientId = apiSettings.ClientId,
-            ClientSecret = apiSettings.ClientSecret,
-            Scope = apiSettings.Scope,
-        });
+        var response = await client.RequestClientCredentialsTokenAsync(GetTokenRequest(requestedClientName, providerOption, discoveryDocument));
 
         _logger.Here().Information("token response {@token}", response);
 
@@ -41,5 +35,29 @@ public class IdentityServiceProvider(IHttpClientFactory httpClientFactory, IConf
         }
 
         return response.AccessToken;
+
+
+    }
+
+    private static ClientCredentialsTokenRequest GetTokenRequest(string requestedClientName, ProviderConfigurationOption providerOption, DiscoveryDocumentResponse discoveryDocument)
+    {
+        return requestedClientName switch
+        {
+            "CatalogueApi" => new()
+            {
+                Address = discoveryDocument.TokenEndpoint,
+                ClientId = providerOption.CatalogueApiSettings.ClientId,
+                ClientSecret = providerOption.CatalogueApiSettings.ClientSecret,
+                Scope = providerOption.CatalogueApiSettings.Scope,
+            },
+            "UserApi" => new()
+            {
+                Address = discoveryDocument.TokenEndpoint,
+                ClientId = providerOption.UserApiSettings.ClientId,
+                ClientSecret = providerOption.UserApiSettings.ClientSecret,
+                Scope = providerOption.UserApiSettings.Scope
+            },
+            _ => throw new NotImplementedException()
+        };
     }
 }

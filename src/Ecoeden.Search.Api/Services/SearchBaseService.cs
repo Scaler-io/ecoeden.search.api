@@ -10,7 +10,7 @@ public class SearchBaseService : QueryBuilderBaseService
 {
     protected ElasticClient ElasticsearchClient { get; }
     protected ILogger _logger;
-    private readonly ElasticSearchOption _settings;
+    protected ElasticSearchOption _settings;
 
     protected SearchBaseService(ILogger logger, IOptions<ElasticSearchOption> options)
     {
@@ -26,7 +26,7 @@ public class SearchBaseService : QueryBuilderBaseService
         _logger.Here().Information("Creating new index with name {index}", index);
 
         var createIndexResponse = await ElasticsearchClient.Indices.CreateAsync(index, c => c
-            .Map<ProductSearchSummary>(m => m
+            .Map<TDocument>(m => m
             .AutoMap())
             .Settings(s => s
                 .NumberOfShards(1)
