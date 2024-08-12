@@ -6,4 +6,9 @@ public static class SearchIndexNameExtensions
     {
         return value == "product-search-index";
     }
+
+    public static bool IsUserSearchIndex(this string value)
+    {
+        return value == "user-search-index";
+    }
 }

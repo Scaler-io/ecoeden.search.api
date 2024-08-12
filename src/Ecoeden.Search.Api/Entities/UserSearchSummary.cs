@@ -1,10 +1,14 @@
+using Nest;
+
 namespace Ecoeden.Search.Api.Entities;
 
 public class UserSearchSummary
 {
     public string Id { get; set; }
     public string UserName { get; set; }
+    [Keyword(Name = "fullName")]
     public string FullName { get; set; }
+    [Keyword(Name = "email")]
     public string Email { get; set; }
     public bool IsDefaultAdmin { get; set; }
     public bool IsActive { get; set; }

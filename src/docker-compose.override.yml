@@ -19,10 +19,16 @@ services:
       - ElasticSearch__Uri=http://elasticsearch:9200 
       - ElasticSearch__ProductIndex=product-search-index
       - IdentityServiceUrl=http://Ecoeden.IdentityServer
-      - ProviderSettings__CatalogueApiSettings__BaseUrl=http://ecoeden.catalogue.api:8080
+      - ProviderSettings__CatalogueApiSettings__BaseUrl=http://Ecoeden.Api.Gateway:8080/catalogue/
       - ProviderSettings__CatalogueApiSettings__ClientId=ecoeden.catalogue.api
       - ProviderSettings__CatalogueApiSettings__ClientSecret=511536EF-F270-4058-80CA-1C89C192F69A
       - "ProviderSettings__CatalogueApiSettings__Scope=catalogueapi:read catalogueapi:write"
+      - ProviderSettings__CatalogueApiSettings__SubscriptionKey=F340FE8EA8604456AC4E66F31A87574C
+      - ProviderSettings__UserApiSettings__BaseUrl=http://Ecoeden.Api.Gateway:8080/user/
+      - ProviderSettings__UserApiSettings__ClientId=ecoeden.user.api
+      - ProviderSettings__UserApiSettings__ClientSecret=511536EF-F270-4058-80CA-1C89C192F69A
+      - "ProviderSettings__UserApiSettings__Scope=userapi:read userapi:write"
+      - ProviderSettings__UserApiSettings__SubscriptionKey=7B6AD94DCC3C4E9F891C52C8C340D99E
       - EventBus__Host=rabbitmq
       - EventBus__Username=guest
       - EventBus__Password=guest

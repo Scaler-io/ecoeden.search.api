@@ -20,10 +20,20 @@ public class RequestSearchController(ILogger logger, ISearchServiceFactory facto
     public async Task<IActionResult> Search([FromBody] RequestQuery query, [FromRoute] string indexName)
     {
         Logger.Here().MethodEntered();
-        var service = indexName.IsProductSearchIndex() ? _factory.CreatePaginatedService<ProductSearchSummary>() : null;
-        var result = await service.GetPaginatedData(query, RequestInformation.CorrelationId, indexName);    
+        if (indexName.IsProductSearchIndex())
+        {
+            var result = await ExecuteSearchAsync<ProductSearchSummary>(query, indexName);
+            Logger.Here().MethodExited();
+            return OkOrFailure(result);
+        }
+        else if (indexName.IsUserSearchIndex())
+        {
+            var result = await ExecuteSearchAsync<UserSearchSummary>(query, indexName);
+            Logger.Here().MethodExited();
+            return OkOrFailure(result);
+        }
         Logger.Here().MethodExited();
-        return OkOrFailure(result);
+        return BadRequest("Invalid index name provided");
     }
 
     [HttpPost("{indexName}/count")]
@@ -36,5 +46,12 @@ public class RequestSearchController(ILogger logger, ISearchServiceFactory facto
         var result = await service.GetCount(RequestInformation.CorrelationId, indexName, null);
         Logger.Here().MethodExited();
         return OkOrFailure(result);
+    }
+
+    private async Task<Result<Pagination<T>>> ExecuteSearchAsync<T>(RequestQuery query, string indexName) where T : class
+    {
+        var service = _factory.CreatePaginatedService<T>();
+        var result = await service.GetPaginatedData(query, RequestInformation.CorrelationId, indexName);
+        return result;
     }
 }
