@@ -26,14 +26,68 @@ public class SearchBaseService : QueryBuilderBaseService
         _logger.Here().Information("Creating new index with name {index}", index);
 
         var createIndexResponse = await ElasticsearchClient.Indices.CreateAsync(index, c => c
-            .Map<TDocument>(m => m
-            .AutoMap())
             .Settings(s => s
                 .NumberOfShards(1)
                 .NumberOfReplicas(0)
-            ));
+                .Analysis(a => a
+                    .Tokenizers(t => t
+                        .EdgeNGram("ngram_tokenizer", e => e
+                            .MinGram(3)
+                            .MaxGram(10)
+                            .TokenChars(TokenChar.Letter, TokenChar.Digit, TokenChar.Symbol)
+                        )
+                    )
+                    .Analyzers(an => an
+                        .Custom("ngram_analyzer", ca => ca
+                            .Tokenizer("ngram_tokenizer")
+                        )
+                    )
+                )
+            )
+            .Map<TDocument>(m => m
+            .AutoMap())
+            .Map<TDocument>(m => CreateMapping(m))
+        );
 
         return createIndexResponse.IsValid;
+    }
+
+    private static TypeMappingDescriptor<TDocument> CreateMapping<TDocument>(TypeMappingDescriptor<TDocument> m) where TDocument : class
+    {
+        if (typeof(TDocument) == typeof(ProductSearchSummary))
+        {
+            return m.Properties<ProductSearchSummary>(p => p
+                .Keyword(k => k
+                    .Name(n => n.Category)
+                )
+                .Text(t => t
+                    .Name(n => n.Name)
+                    .Analyzer("ngram_analyzer")
+                )
+                .Text(t => t
+                    .Name(n => n.Slug)
+                    .Analyzer("ngram_analyzer")
+                )
+            );
+        }
+
+        return m.Properties<UserSearchSummary>(p => p
+            .Keyword(k => k
+                .Name(n => n.UserRoles)
+            )
+            .Text(t => t
+                .Name(n => n.Email)
+                .Analyzer("ngram_analyzer")
+            )
+            .Text(t => t
+                .Name(n => n.FullName)
+                .Analyzer("ngram_analyzer")
+            )
+            .Text(t => t
+                .Name(n => n.UserName)
+                .Analyzer("ngram_analyzer")
+            )
+        );
     }
 
     protected async Task<bool> IndexExist(string index)

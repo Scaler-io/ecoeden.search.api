@@ -5,7 +5,7 @@ namespace Ecoeden.Search.Api.Services;
 
 public class QueryBuilderBaseService
 {
-    
+
     protected BoolQuery BuildBoolQuery(RequestQuery query)
     {
         var mustQueries = new List<QueryContainer>();

@@ -6,12 +6,11 @@ public class UserSearchSummary
 {
     public string Id { get; set; }
     public string UserName { get; set; }
-    [Keyword(Name = "fullName")]
     public string FullName { get; set; }
-    [Keyword(Name = "email")]
     public string Email { get; set; }
     public bool IsDefaultAdmin { get; set; }
     public bool IsActive { get; set; }
+    [Keyword(Name = "userRoles")]
     public List<string> UserRoles { get; set; }
     public List<string> Permissions { get; set; }
     public DateTime LastLogin { get; set; }
