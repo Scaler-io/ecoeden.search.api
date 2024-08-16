@@ -9,11 +9,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace Ecoeden.Search.Api.Controllers.v1;
 
 [ApiVersion("1")]
-public class TestController(ILogger logger, 
-    ISearchService<ProductSearchSummary> searchService, 
+public class TestController(ILogger logger,
+    ISearchService<ProductSearchSummary> searchService,
     IPaginatedSearchService<ProductSearchSummary> _paginatedSearchService,
     CatalogueApiProvider catalogueApiProvider
-    ) 
+    )
     : ApiBaseController(logger)
 {
     private readonly ISearchService<ProductSearchSummary> _searchService = searchService;
@@ -52,9 +52,9 @@ public class TestController(ILogger logger,
     }
 
     [HttpGet("count")]
-    public async Task<IActionResult> TestPost([FromQuery]RequestQuery query)
+    public async Task<IActionResult> TestPost()
     {
-        var result = await _paginatedSearchService.GetCount(Guid.NewGuid().ToString(), "product-search-index", query);
+        var result = await _paginatedSearchService.GetCount(Guid.NewGuid().ToString(), "product-search-index");
 
         return Ok(result);
     }

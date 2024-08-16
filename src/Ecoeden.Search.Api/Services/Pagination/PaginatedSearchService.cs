@@ -9,11 +9,11 @@ using Nest;
 namespace Ecoeden.Search.Api.Services.Pagination;
 
 public class PaginatedSearchService<TDocument>(ILogger logger, IOptions<ElasticSearchOption> options) :
-    SearchBaseService(logger, options), 
+    SearchBaseService(logger, options),
     IPaginatedSearchService<TDocument>
     where TDocument : class
 {
-    public async Task<Result<long>> GetCount(string correlationId, string searchIndex, RequestQuery query = null)
+    public async Task<Result<long>> GetCount(string correlationId, string searchIndex)
     {
         _logger.Here().MethodEntered();
         _logger.Here().WithCorrelationId(correlationId)
@@ -25,17 +25,7 @@ public class PaginatedSearchService<TDocument>(ILogger logger, IOptions<ElasticS
             return Result<long>.Failure(ErrorCodes.NotFound, "Search index not found");
         }
 
-        CountResponse countResponse = new();
-
-        if (query == null) 
-        { 
-            countResponse = await ElasticsearchClient.CountAsync<TDocument>(s => s.Index(searchIndex));
-        }
-        else
-        {
-            countResponse = await ElasticsearchClient.CountAsync<TDocument>(s => s.Index(searchIndex)
-            .Query(q => q.Bool(b => BuildBoolQuery(query))));
-        }
+        CountResponse countResponse = await ElasticsearchClient.CountAsync<TDocument>(s => s.Index(searchIndex));
 
         if (!countResponse.IsValid)
         {

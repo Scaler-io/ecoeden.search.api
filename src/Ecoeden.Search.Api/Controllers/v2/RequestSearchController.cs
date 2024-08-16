@@ -39,19 +39,37 @@ public class RequestSearchController(ILogger logger, ISearchServiceFactory facto
     [HttpPost("{indexName}/count")]
     [SwaggerHeader("CorrelationId", Description = "expects unique correlation id")]
     [SwaggerOperation(OperationId = "SearchCount", Description = "Fetches the total document count from elastic search")]
-    public async Task<IActionResult> SearchCount([FromBody] RequestQuery query, [FromRoute] string indexName)
+    public async Task<IActionResult> SearchCount([FromRoute] string indexName)
     {
         Logger.Here().MethodEntered();
-        var service = indexName.IsProductSearchIndex() ? _factory.CreatePaginatedService<ProductSearchSummary>() : null;
-        var result = await service.GetCount(RequestInformation.CorrelationId, indexName, null);
+        if (indexName.IsProductSearchIndex())
+        {
+            var result = await ExecuteCountAsync<ProductSearchSummary>(indexName);
+            Logger.Here().MethodExited();
+            return OkOrFailure(result);
+        }
+        if (indexName.IsUserSearchIndex())
+        {
+            var result = await ExecuteCountAsync<UserSearchSummary>(indexName);
+            Logger.Here().MethodExited();
+            return OkOrFailure(result);
+        }
+
         Logger.Here().MethodExited();
-        return OkOrFailure(result);
+        return BadRequest("Invalid index name provided");
     }
 
     private async Task<Result<Pagination<T>>> ExecuteSearchAsync<T>(RequestQuery query, string indexName) where T : class
     {
         var service = _factory.CreatePaginatedService<T>();
         var result = await service.GetPaginatedData(query, RequestInformation.CorrelationId, indexName);
+        return result;
+    }
+
+    private async Task<Result<long>> ExecuteCountAsync<T>(string indexName) where T : class
+    {
+        var service = _factory.CreatePaginatedService<T>();
+        var result = await service.GetCount(RequestInformation.CorrelationId, indexName);
         return result;
     }
 }

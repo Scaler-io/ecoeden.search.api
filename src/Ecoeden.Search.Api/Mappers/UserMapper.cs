@@ -19,8 +19,8 @@ public class UserMapper
             UserRoles = user.UserRoles,
             Permissions = user.Permissions,
             LastLogin = user.LastLogin,
-            CreatedOn = DateTime.Parse(user.MetaData.CreatedAt),
-            UpdatedOn = DateTime.Parse(user.MetaData.UpdatedAt)
+            CreatedOn = DateTime.ParseExact(user.MetaData.CreatedAt, "dd/MM/yyyy HH:mm:ss tt", CultureInfo.InvariantCulture),
+            UpdatedOn = DateTime.ParseExact(user.MetaData.UpdatedAt, "dd/MM/yyyy HH:mm:ss tt", CultureInfo.InvariantCulture)
         });
     }
 }
