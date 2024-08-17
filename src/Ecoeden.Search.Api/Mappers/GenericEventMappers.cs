@@ -10,5 +10,6 @@ public class GenericEventMappers : Profile
     {
         CreateMap<ProductCreated, ProductSearchSummary>().ReverseMap();
         CreateMap<ProductUpdated, ProductSearchSummary>().ReverseMap();
+        CreateMap<UserCreated, UserSearchSummary>().ReverseMap();
     }
 }

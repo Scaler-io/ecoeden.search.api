@@ -11,18 +11,16 @@ using Microsoft.Extensions.Options;
 
 namespace Ecoeden.Search.Api.EventBus.Consumers;
 
-public class ProductUpdatedConsumer(ILogger logger, 
-    IMapper mapper, 
-    IPublishEndpoint endpoint,
+public class ProductUpdatedConsumer(ILogger logger,
+    IMapper mapper,
     ISearchService<ProductSearchSummary> searchService,
     IOptions<ElasticSearchOption> elasticOptions,
     IEventRecorderService eventRecorderService) : ConsumerBase<ProductUpdated>(eventRecorderService), IConsumer<ProductUpdated>
 {
     private readonly ILogger _logger = logger;
     private readonly IMapper _mapper = mapper;
-    private readonly IPublishEndpoint _endpoint = endpoint;
     private readonly ISearchService<ProductSearchSummary> _searchService = searchService;
-    private readonly ElasticSearchOption _elasticOptions = elasticOptions.Value;   
+    private readonly ElasticSearchOption _elasticOptions = elasticOptions.Value;
 
     public async Task Consume(ConsumeContext<ProductUpdated> context)
     {

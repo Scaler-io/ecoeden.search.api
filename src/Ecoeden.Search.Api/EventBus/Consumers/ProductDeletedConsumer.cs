@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Contracts.Events;
+﻿using Contracts.Events;
 using Ecoeden.Search.Api.Configurations;
 using Ecoeden.Search.Api.Entities;
 using Ecoeden.Search.Api.Extensions;
@@ -10,16 +9,12 @@ using Microsoft.Extensions.Options;
 
 namespace Ecoeden.Search.Api.EventBus.Consumers;
 
-public class ProductDeletedConsumer(ILogger logger, 
-    IMapper mapper,
-    IPublishEndpoint endpoint,
+public class ProductDeletedConsumer(ILogger logger,
     ISearchService<ProductSearchSummary> searchService,
     IOptions<ElasticSearchOption> elasticOptions,
     IEventRecorderService eventRecorderService) : ConsumerBase<ProductDeleted>(eventRecorderService), IConsumer<ProductDeleted>
 {
     private readonly ILogger _logger = logger;
-    private readonly IMapper _mapper = mapper;
-    private readonly IPublishEndpoint _endpoint = endpoint;
     private readonly ISearchService<ProductSearchSummary> _searchService = searchService;
     private readonly ElasticSearchOption _elasticOptions = elasticOptions.Value;
 
@@ -34,7 +29,7 @@ public class ProductDeletedConsumer(ILogger logger,
 
         // update product to open document [Elastic search]
 
-        var result = await _searchService.RemoveDocumentAsync(new() { { "id", context.Message .Id } }, _elasticOptions.ProductIndex);
+        var result = await _searchService.RemoveDocumentAsync(new() { { "id", context.Message.Id } }, _elasticOptions.ProductIndex);
 
         if (!result.IsSuccess)
         {
