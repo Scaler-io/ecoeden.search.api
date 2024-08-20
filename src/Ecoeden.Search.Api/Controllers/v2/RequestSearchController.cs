@@ -36,7 +36,7 @@ public class RequestSearchController(ILogger logger, ISearchServiceFactory facto
         return BadRequest("Invalid index name provided");
     }
 
-    [HttpPost("{indexName}/count")]
+    [HttpGet("{indexName}/count")]
     [SwaggerHeader("CorrelationId", Description = "expects unique correlation id")]
     [SwaggerOperation(OperationId = "SearchCount", Description = "Fetches the total document count from elastic search")]
     public async Task<IActionResult> SearchCount([FromRoute] string indexName)
