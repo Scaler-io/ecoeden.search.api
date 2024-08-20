@@ -40,6 +40,7 @@ public class SearchBaseService : QueryBuilderBaseService
                     .Analyzers(an => an
                         .Custom("ngram_analyzer", ca => ca
                             .Tokenizer("ngram_tokenizer")
+                            .Filters("lowercase")
                         )
                     )
                 )
