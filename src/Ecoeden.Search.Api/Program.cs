@@ -17,6 +17,14 @@ builder.Services.AddApplicationServices(builder.Configuration, swaggerConfigurat
     .ConfigureOptions(builder.Configuration)
     .ConfigureHttpClients(builder.Configuration);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("ecoedencors", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200").AllowCredentials().AllowAnyMethod().AllowAnyHeader();
+    });
+});
+
 var app = builder.Build();
 
 app.AddApplicationPipelines(app.Environment.IsDevelopment());
