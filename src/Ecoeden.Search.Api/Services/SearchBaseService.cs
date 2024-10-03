@@ -33,7 +33,7 @@ public class SearchBaseService : QueryBuilderBaseService
                     .Tokenizers(t => t
                         .EdgeNGram("ngram_tokenizer", e => e
                             .MinGram(3)
-                            .MaxGram(10)
+                            .MaxGram(5)
                             .TokenChars(TokenChar.Letter, TokenChar.Digit, TokenChar.Symbol)
                         )
                     )

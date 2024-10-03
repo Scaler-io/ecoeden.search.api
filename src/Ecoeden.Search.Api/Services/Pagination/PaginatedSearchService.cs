@@ -13,7 +13,7 @@ public class PaginatedSearchService<TDocument>(ILogger logger, IOptions<ElasticS
     IPaginatedSearchService<TDocument>
     where TDocument : class
 {
-    public async Task<Result<long>> GetCount(string correlationId, string searchIndex)
+    public async Task<Result<long>> GetCount(string correlationId, string searchIndex, RequestQuery query = null)
     {
         _logger.Here().MethodEntered();
         _logger.Here().WithCorrelationId(correlationId)
@@ -25,7 +25,12 @@ public class PaginatedSearchService<TDocument>(ILogger logger, IOptions<ElasticS
             return Result<long>.Failure(ErrorCodes.NotFound, "Search index not found");
         }
 
-        CountResponse countResponse = await ElasticsearchClient.CountAsync<TDocument>(s => s.Index(searchIndex));
+        CountResponse countResponse = new();
+
+        if(query != null)
+            countResponse = await ElasticsearchClient.CountAsync<TDocument>(s => s.Index(searchIndex).Query(q => !query.IsFilteredQuery ? q.MatchAll() : BuildBoolQuery(query)));
+        else
+            countResponse = await ElasticsearchClient.CountAsync<TDocument>(s => s.Index(searchIndex));
 
         if (!countResponse.IsValid)
         {

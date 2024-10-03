@@ -81,6 +81,8 @@ public class QueryBuilderBaseService
 
     private QueryContainer BuildFullTextSearchQuery(string matchPhrase, string matchPhraseField)
     {
+        var fields = matchPhraseField.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
         if (string.IsNullOrEmpty(matchPhrase) || string.IsNullOrEmpty(matchPhraseField))
         {
             return null;
@@ -88,7 +90,7 @@ public class QueryBuilderBaseService
 
         return new MultiMatchQuery
         {
-            Fields = matchPhraseField,
+            Fields = fields,
             Query = matchPhrase,
             Type = TextQueryType.BestFields
         };
