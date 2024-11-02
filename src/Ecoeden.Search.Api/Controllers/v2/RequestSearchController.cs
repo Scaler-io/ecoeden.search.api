@@ -20,6 +20,7 @@ public class RequestSearchController(ILogger logger, ISearchServiceFactory facto
     public async Task<IActionResult> Search([FromBody] RequestQuery query, [FromRoute] string indexName)
     {
         Logger.Here().MethodEntered();
+        
         if (indexName.IsProductSearchIndex())
         {
             var result = await ExecuteSearchAsync<ProductSearchSummary>(query, indexName);
@@ -32,8 +33,15 @@ public class RequestSearchController(ILogger logger, ISearchServiceFactory facto
             Logger.Here().MethodExited();
             return OkOrFailure(result);
         }
+        else if (indexName.IsSupplierSearchIndex())
+        {
+            var result = await ExecuteSearchAsync<SupplierSearchSummary>(query, indexName);
+            Logger.Here().MethodExited();
+            return OkOrFailure(result);
+        }
+
         Logger.Here().MethodExited();
-        return BadRequest("Invalid index name provided");
+        return BadRequest(new ApiValidationResponse("Invalid index name provided"));
     }
 
     [HttpPost("{indexName}/count")]
@@ -54,9 +62,15 @@ public class RequestSearchController(ILogger logger, ISearchServiceFactory facto
             Logger.Here().MethodExited();
             return OkOrFailure(result);
         }
+        if(indexName.IsSupplierSearchIndex())
+        {
+            var result = await ExecuteCountAsync<SupplierSearchSummary>(indexName, query);
+            Logger.Here().MethodExited();
+            return OkOrFailure(result);
+        }
 
         Logger.Here().MethodExited();
-        return BadRequest("Invalid index name provided");
+        return BadRequest(new ApiValidationResponse("Invalid index name provided"));
     }
 
     private async Task<Result<Pagination<T>>> ExecuteSearchAsync<T>(RequestQuery query, string indexName) where T : class

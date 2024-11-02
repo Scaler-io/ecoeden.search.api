@@ -6,5 +6,8 @@ public enum GenericEventType
     ProductUpdated,
     ProductDeleted,
     UserCreated,
-    UserUpdated
+    UserUpdated,
+    SupplierCreated,
+    SupplierUpdated,
+    SupplierDeleted
 }

@@ -25,9 +25,17 @@ public static class ConfigureHttpClientFactories
             client.DefaultRequestHeaders.Add("ocp-apim-subscriptionkey", providerSettings.UserApiSettings.SubscriptionKey);
         });
 
+        services.AddHttpClient(ApiProviderNames.InventoryApi, client =>
+        {
+            client.BaseAddress = new Uri(providerSettings.InventoryApiSettings.BaseUrl);
+            client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+            client.DefaultRequestHeaders.Add("ocp-apim-subscriptionkey", providerSettings.InventoryApiSettings.SubscriptionKey);
+        });
+
         services.AddTransient<IdentityServiceProvider>();
         services.AddTransient<CatalogueApiProvider>();
         services.AddTransient<UserApiProvider>();
+        services.AddTransient<InventoryApiProvider>();
 
         return services;
     }

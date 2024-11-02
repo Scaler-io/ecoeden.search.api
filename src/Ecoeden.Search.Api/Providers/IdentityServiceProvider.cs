@@ -17,7 +17,7 @@ public class IdentityServiceProvider(IHttpClientFactory httpClientFactory, IConf
         var discoveryDocument = await client.GetDiscoveryDocumentAsync(new DiscoveryDocumentRequest
         {
             Address = _configuration["IdentityServiceUrl"],
-            Policy = new DiscoveryPolicy { RequireHttps = false, ValidateIssuerName = false, ValidateEndpoints = false }
+            Policy = new DiscoveryPolicy { RequireHttps = false, ValidateIssuerName = true, ValidateEndpoints = true }
         });
 
         if (discoveryDocument.IsError)
@@ -56,6 +56,13 @@ public class IdentityServiceProvider(IHttpClientFactory httpClientFactory, IConf
                 ClientId = providerOption.UserApiSettings.ClientId,
                 ClientSecret = providerOption.UserApiSettings.ClientSecret,
                 Scope = providerOption.UserApiSettings.Scope
+            },
+            "InventoryApi" => new()
+            {
+                Address = discoveryDocument.TokenEndpoint,
+                ClientId = providerOption.InventoryApiSettings.ClientId,
+                ClientSecret = providerOption.InventoryApiSettings.ClientSecret,
+                Scope = providerOption.InventoryApiSettings.Scope
             },
             _ => throw new NotImplementedException()
         };

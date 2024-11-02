@@ -5,6 +5,7 @@ public class ProviderConfigurationOption
     public const string OptionName = "ProviderSettings";
     public CatalogueApiSettings CatalogueApiSettings { get; set; }
     public UserApiSettings UserApiSettings { get; set; }
+    public InventoryApiSettings InventoryApiSettings { get; set; }
 }
 
 public class ApiSettings
@@ -22,4 +23,9 @@ public class CatalogueApiSettings : ApiSettings
 
 public class UserApiSettings : ApiSettings
 {
+}
+
+public class InventoryApiSettings : ApiSettings
+{
+
 }

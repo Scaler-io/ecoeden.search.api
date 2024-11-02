@@ -6,4 +6,5 @@ public sealed class ElasticSearchOption
     public string Uri { get; set; }
     public string ProductIndex { get; set; }
     public string UserIndex { get; set; }
+    public string SupplierIndex { get; set; }
 }

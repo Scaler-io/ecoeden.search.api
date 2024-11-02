@@ -15,11 +15,13 @@ namespace Ecoeden.Search.Api.Services.Search;
 public class SearchService<TDocument>(ILogger logger,
     CatalogueApiProvider catalogueApiProvider,
     UserApiProvider userApiProvider,
+    InventoryApiProvider inventoryApiProvider,
     IOptions<ElasticSearchOption> options)
     : SearchBaseService(logger, options), ISearchService<TDocument> where TDocument : class
 {
     private readonly CatalogueApiProvider _catalogueApiProvider = catalogueApiProvider;
     private readonly UserApiProvider _userApiProvider = userApiProvider;
+    private readonly InventoryApiProvider _inventoryApiProvider = inventoryApiProvider;
 
     public async Task<Result<bool>> SeedDocumentAsync(TDocument document, string id, string index)
     {
@@ -108,6 +110,10 @@ public class SearchService<TDocument>(ILogger logger,
                 var userSearchSummaries = await GetUsersAsync();
                 bulkResponse = await ElasticsearchClient.BulkAsync(b => b.Index(index).IndexMany(userSearchSummaries));
                 break;
+            case "supplier-search-index":
+                var supplierSearchSummaries = await GetSuppliersAsync();
+                bulkResponse = await ElasticsearchClient.BulkAsync(b => b.Index(index).IndexMany(supplierSearchSummaries));
+                break;
             default:
                 break;
         }
@@ -161,5 +167,11 @@ public class SearchService<TDocument>(ILogger logger,
     {
         var results = await _userApiProvider.GetUsers();
         return UserMapper.Map(results.Data);
+    }
+
+    private async Task<IEnumerable<SupplierSearchSummary>> GetSuppliersAsync()
+    {
+        var results = await _inventoryApiProvider.GetSuppliers();
+        return SupplierMapper.Map(results.Data);
     }
 }

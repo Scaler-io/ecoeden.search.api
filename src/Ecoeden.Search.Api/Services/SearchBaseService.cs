@@ -72,6 +72,25 @@ public class SearchBaseService : QueryBuilderBaseService
             );
         }
 
+        if(typeof(TDocument) == typeof(SupplierSearchSummary))
+        {
+            return m.Properties<SupplierSearchSummary>(s => s
+             .Keyword(t => t
+                .Name(n => n.Name)
+             )
+             .Keyword(t => t
+                .Name(n => n.Email)
+             )
+             .Keyword(t => t
+                .Name(n => n.Phone)
+             )
+             .Text(t => t
+                .Name(n => n.Address)
+                .Analyzer("ngram_analyzer")
+             )
+           );
+        }
+
         return m.Properties<UserSearchSummary>(p => p
             .Keyword(k => k
                 .Name(n => n.UserRoles)

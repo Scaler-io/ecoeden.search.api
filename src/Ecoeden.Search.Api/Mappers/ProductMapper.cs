@@ -11,8 +11,8 @@ public static class ProductMapper
         return products.Select(product => new ProductSearchSummary
         {
             Category = product.Category,
-            CreatedOn = DateTime.ParseExact(product.MetaData.CreatedAt, "dd/MM/yyyy HH:mm:ss tt", CultureInfo.InvariantCulture),
-            LastUpdatedOn = DateTime.ParseExact(product.MetaData.UpdatedAt, "dd/MM/yyyy HH:mm:ss tt", CultureInfo.InvariantCulture),
+            CreatedOn = DateTime.ParseExact(product.MetaData.CreatedAt, "dd/MM/yyyy hh:mm:ss tt", CultureInfo.InvariantCulture),
+            LastUpdatedOn = DateTime.ParseExact(product.MetaData.UpdatedAt, "dd/MM/yyyy hh:mm:ss tt", CultureInfo.InvariantCulture),
             Id = product.Id,
             ImageFile = product.ImageFile,
             Name = product.Name,

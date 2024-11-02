@@ -11,4 +11,9 @@ public static class SearchIndexNameExtensions
     {
         return value == "user-search-index";
     }
+
+    public static bool IsSupplierSearchIndex(this string value)
+    {
+        return value == "supplier-search-index";
+    }
 }

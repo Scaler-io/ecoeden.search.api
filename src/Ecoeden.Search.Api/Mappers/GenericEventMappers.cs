@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Contracts.Events;
 using Ecoeden.Search.Api.Entities;
-using Ecoeden.Search.Api.EventBus.Contracts;
 
 namespace Ecoeden.Search.Api.Mappers;
 
@@ -13,5 +12,11 @@ public class GenericEventMappers : Profile
         CreateMap<ProductUpdated, ProductSearchSummary>().ReverseMap();
         CreateMap<UserCreated, UserSearchSummary>().ReverseMap();
         CreateMap<UserUpdated, UserSearchSummary>().ReverseMap();
+        CreateMap<SupplierCreated, SupplierSearchSummary>()
+            .ForMember(d => d.UpdatedOn, o => o.MapFrom(s => s.LastUpdatedOn))
+            .ReverseMap();
+        CreateMap<SupplierUpdated, SupplierSearchSummary>()
+            .ForMember(d => d.UpdatedOn, o => o.MapFrom(s => s.LastUpdatedOn))
+            .ReverseMap();
     }
 }
