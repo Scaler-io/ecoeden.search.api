@@ -9,6 +9,7 @@ public class SupplierSearchSummary
     public string Phone { get; set; }
     public string Email { get; set; }
     public string Address { get; set; }
+    public bool Status { get; set; }
     public DateTime CreatedOn { get; set; }
     public DateTime UpdatedOn { get; set; }
 }
