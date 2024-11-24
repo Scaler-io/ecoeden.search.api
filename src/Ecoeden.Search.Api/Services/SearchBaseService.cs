@@ -75,8 +75,9 @@ public class SearchBaseService : QueryBuilderBaseService
         if(typeof(TDocument) == typeof(SupplierSearchSummary))
         {
             return m.Properties<SupplierSearchSummary>(s => s
-             .Keyword(t => t
+             .Text(t => t
                 .Name(n => n.Name)
+                .Analyzer("ngram_analyzer")
              )
              .Keyword(t => t
                 .Name(n => n.Email)

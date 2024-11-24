@@ -39,17 +39,17 @@ public class ApiBaseController(ILogger logger) : ControllerBase
         };
     }
 
-    protected static ObjectResult InternalServerError(ApiResponse response)
-    {
-        return new ObjectResult(response)
+        protected static ObjectResult InternalServerError(ApiResponse response)
         {
-            StatusCode = (int)HttpStatusCode.InternalServerError,
-            ContentTypes =
-            [
-                "application/json"
-            ]
-        };
-    }
+            return new ObjectResult(response)
+            {
+                StatusCode = (int)HttpStatusCode.InternalServerError,
+                ContentTypes =
+                [
+                    "application/json"
+                ]
+            };
+        }
 
     protected IActionResult ProcessValidationResult(ValidationResult validationResult)
     {
@@ -60,7 +60,7 @@ public class ApiBaseController(ILogger logger) : ControllerBase
         };
 
         validationError.Errors.AddRange(
-         errors.Select(error => new FieldLevelError
+         errors.Select(error => new FieldLevelError 
          {
              Code = error.ErrorCode,
              Field = error.PropertyName,

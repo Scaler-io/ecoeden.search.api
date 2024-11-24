@@ -36,6 +36,8 @@ public class CatalogueApiProvider(IHttpClientFactory httpClientFactory,
         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
         client.DefaultRequestHeaders.Add("api-version", "v2");
 
+        _logger.Here().Information("{baseUrl} - {headers}", client.BaseAddress, client.DefaultRequestHeaders);
+
         var response = await client.GetAsync("products");
 
         if (!response.IsSuccessStatusCode)

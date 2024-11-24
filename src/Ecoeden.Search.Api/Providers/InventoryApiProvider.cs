@@ -36,6 +36,9 @@ public class InventoryApiProvider(IHttpClientFactory httpClientFactory,
         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
         client.DefaultRequestHeaders.Add("api-version", "v1");
 
+        _logger.Here().Information("base url from settings - {url}", _providerSettings.InventoryApiSettings.BaseUrl);
+        _logger.Here().Information("{baseUrl} - {headers}", client.BaseAddress, client.DefaultRequestHeaders);
+
         var response = await client.GetAsync("supplier");
 
         if (!response.IsSuccessStatusCode)

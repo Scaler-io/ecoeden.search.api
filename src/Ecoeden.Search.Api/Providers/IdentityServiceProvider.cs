@@ -13,11 +13,11 @@ public class IdentityServiceProvider(IHttpClientFactory httpClientFactory, IConf
     public async Task<string> GetAccessToken(ProviderConfigurationOption providerOption, string requestedClientName)
     {
         var client = _httpClientFactory.CreateClient();
-
+        var authority = _configuration["IdentityServiceUrl"];
         var discoveryDocument = await client.GetDiscoveryDocumentAsync(new DiscoveryDocumentRequest
         {
-            Address = _configuration["IdentityServiceUrl"],
-            Policy = new DiscoveryPolicy { RequireHttps = false, ValidateIssuerName = true, ValidateEndpoints = true }
+            Address = authority,
+            Policy = new DiscoveryPolicy { RequireHttps = false, ValidateIssuerName = false, ValidateEndpoints = false }
         });
 
         if (discoveryDocument.IsError)
