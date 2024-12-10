@@ -14,6 +14,7 @@ public class SupplierMapper
             Name  = supplier.Name,
             Email = supplier.ContactDetails.Email,
             Phone = supplier.ContactDetails.Phone,
+            Status = supplier.Status,
             Address = supplier.ContactDetails.Address.GetAddressString(),
             CreatedOn = DateTime.ParseExact(supplier.MetaData.CreatedAt, "dd/MM/yyyy hh:mm:ss tt", CultureInfo.InvariantCulture),
             UpdatedOn = DateTime.ParseExact(supplier.MetaData.UpdatedAt, "dd/MM/yyyy hh:mm:ss tt", CultureInfo.InvariantCulture),
