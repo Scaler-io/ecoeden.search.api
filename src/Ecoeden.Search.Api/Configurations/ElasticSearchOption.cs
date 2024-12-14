@@ -7,4 +7,5 @@ public sealed class ElasticSearchOption
     public string ProductIndex { get; set; }
     public string UserIndex { get; set; }
     public string SupplierIndex { get; set; }
+    public string CustomerIndex { get; set; }
 }

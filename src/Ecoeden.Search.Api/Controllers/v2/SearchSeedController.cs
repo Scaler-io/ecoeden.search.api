@@ -52,4 +52,16 @@ public class SearchSeedController(ILogger logger, IOptions<ElasticSearchOption> 
         Logger.Here().MethodExited();
         return OkOrFailure(result);
     }
+
+    [HttpPost("seed/customers")]
+    [SwaggerHeader("CorrelationId", Description = "expects unique correlation id")]
+    [SwaggerOperation(OperationId = "SeedCustomers", Description = "seeds elastic search odata store")]
+    public async Task<IActionResult> SeedCustomers()
+    {
+        Logger.Here().MethodEntered();
+        var customerSearchService = _factory.Create<CustomerSearchSummary>();
+        var result = await customerSearchService.SearchReIndex(_elasticSearchOption.CustomerIndex);
+        Logger.Here().MethodExited();
+        return OkOrFailure(result);
+    }
 }

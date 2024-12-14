@@ -55,60 +55,36 @@ public class SearchBaseService : QueryBuilderBaseService
 
     private static TypeMappingDescriptor<TDocument> CreateMapping<TDocument>(TypeMappingDescriptor<TDocument> m) where TDocument : class
     {
-        if (typeof(TDocument) == typeof(ProductSearchSummary))
+        var mappingActions = new Dictionary<Type, Action<TypeMappingDescriptor<TDocument>>>
         {
-            return m.Properties<ProductSearchSummary>(p => p
-                .Keyword(k => k
-                    .Name(n => n.Category)
-                )
-                .Text(t => t
-                    .Name(n => n.Name)
-                    .Analyzer("ngram_analyzer")
-                )
-                .Text(t => t
-                    .Name(n => n.Slug)
-                    .Analyzer("ngram_analyzer")
-                )
-            );
-        }
+            [typeof(ProductSearchSummary)] = descriptor => descriptor.Properties<ProductSearchSummary>(p => p
+                .Keyword(k => k.Name(n => n.Category))
+                .Text(t => t.Name(n => n.Name).Analyzer("ngram_analyzer"))
+                .Text(t => t.Name(n => n.Slug).Analyzer("ngram_analyzer"))
+            ),
+            [typeof(SupplierSearchSummary)] = descriptor => descriptor.Properties<SupplierSearchSummary>(s => s
+                .Text(t => t.Name(n => n.Name).Analyzer("ngram_analyzer"))
+                .Keyword(k => k.Name(n => n.Email))
+                .Keyword(k => k.Name(n => n.Phone))
+                .Text(t => t.Name(n => n.Address).Analyzer("ngram_analyzer"))
+            ),
+            [typeof(UserSearchSummary)] = descriptor => descriptor.Properties<UserSearchSummary>(p => p
+                .Keyword(k => k.Name(n => n.UserRoles))
+                .Text(t => t.Name(n => n.Email).Analyzer("ngram_analyzer"))
+                .Text(t => t.Name(n => n.FullName).Analyzer("ngram_analyzer"))
+                .Text(t => t.Name(n => n.UserName).Analyzer("ngram_analyzer"))
+            ),
+            [typeof(CustomerSearchSummary)] = descriptor => descriptor.Properties<CustomerSearchSummary>(c => c
+                .Text(k => k.Name(n => n.Name).Analyzer("ngram_analyzer"))
+                .Keyword(k => k.Name(n => n.Email))
+                .Keyword(k => k.Name(n => n.Phone))
+                .Text(t => t.Name(n => n.Address).Analyzer("ngram_analyzer"))
+            )
+        };
 
-        if(typeof(TDocument) == typeof(SupplierSearchSummary))
-        {
-            return m.Properties<SupplierSearchSummary>(s => s
-             .Text(t => t
-                .Name(n => n.Name)
-                .Analyzer("ngram_analyzer")
-             )
-             .Keyword(t => t
-                .Name(n => n.Email)
-             )
-             .Keyword(t => t
-                .Name(n => n.Phone)
-             )
-             .Text(t => t
-                .Name(n => n.Address)
-                .Analyzer("ngram_analyzer")
-             )
-           );
-        }
-
-        return m.Properties<UserSearchSummary>(p => p
-            .Keyword(k => k
-                .Name(n => n.UserRoles)
-            )
-            .Text(t => t
-                .Name(n => n.Email)
-                .Analyzer("ngram_analyzer")
-            )
-            .Text(t => t
-                .Name(n => n.FullName)
-                .Analyzer("ngram_analyzer")
-            )
-            .Text(t => t
-                .Name(n => n.UserName)
-                .Analyzer("ngram_analyzer")
-            )
-        );
+        // Check if a mapping action exists for the given type
+        if (mappingActions.TryGetValue(typeof(TDocument), out var action)) action(m);
+        return m;
     }
 
     protected async Task<bool> IndexExist(string index)
