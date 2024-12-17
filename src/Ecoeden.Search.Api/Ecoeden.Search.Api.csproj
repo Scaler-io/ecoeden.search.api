@@ -52,7 +52,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="EventBus\Consumers\Customer\" />
     <Folder Include="Swagger\Examples\" />
   </ItemGroup>
 

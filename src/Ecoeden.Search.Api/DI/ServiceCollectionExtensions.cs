@@ -107,7 +107,8 @@ public static class ServiceCollectionExtensions
         //  sql server dabase services
         services.AddDbContext<EcoedenDbContext>(options =>
         {
-            options.UseSqlServer(configuration.GetConnectionString("Sqlserver"));
+            options.UseSqlServer(configuration.GetConnectionString("Sqlserver"), options => 
+                options.MigrationsHistoryTable("__EFMigrationsHistory", "ecoeden.event"));
         });
         services.AddScoped<IEventRecorderService, EventRecorderService>();
         return services;

@@ -3,8 +3,8 @@ using Ecoeden.Search.Api.Models.Enums;
 
 namespace Contracts.Events;
 
-public class SupplierDeleted : GenericEvent 
+public class CustomerDeleted : GenericEvent 
 {
     public string Id { get; set; }
-    protected override GenericEventType GenericEventType { get; set; } = GenericEventType.SupplierDeleted;
+    protected override GenericEventType GenericEventType { get; set; } = GenericEventType.CustomerDeleted;
 }

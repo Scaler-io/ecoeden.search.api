@@ -25,6 +25,7 @@ public class EcoedenDbContext(DbContextOptions<EcoedenDbContext> options) : DbCo
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        modelBuilder.HasDefaultSchema("ecoeden.event");
         base.OnModelCreating(modelBuilder);
     }
 }
