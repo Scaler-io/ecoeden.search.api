@@ -3,6 +3,7 @@ using Ecoeden.Search.Api.Extensions;
 using Ecoeden.Search.Api.Models.Constants;
 using Ecoeden.Search.Api.Models.Contracts.Customer;
 using Ecoeden.Search.Api.Models.Contracts.Supplier;
+using Ecoeden.Search.Api.Models.Contracts.Unit;
 using Ecoeden.Search.Api.Models.Core;
 using Ecoeden.Search.Api.Models.Enums;
 using Microsoft.Extensions.Options;
@@ -88,5 +89,40 @@ public class InventoryApiProvider(IHttpClientFactory httpClientFactory,
 
         _logger.Here().MethodExited();
         return Result<IEnumerable<Customer>>.Success(jsonData);
+    }
+
+    public async Task<Result<IEnumerable<Unit>>> GetUnits()
+    {
+        _logger.Here().MethodEntered();
+        _logger.Here().Information("Making HTTP call to customer endpoint");
+
+        var client = _httpClientFactory.CreateClient(ApiProviderNames.InventoryApi);
+        var token = await _identityServiceProvider.GetAccessToken(_providerSettings, ApiProviderNames.InventoryApi);
+
+        if (string.IsNullOrEmpty(token))
+        {
+            _logger.Here().Error("Access token could not be generated");
+            return Result<IEnumerable<Unit>>.Failure(ErrorCodes.OperationFailed);
+        }
+
+        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        client.DefaultRequestHeaders.Add("api-version", "v1");
+
+        _logger.Here().Information("base url from settings - {url}", _providerSettings.InventoryApiSettings.BaseUrl);
+        _logger.Here().Information("{baseUrl} - {headers}", client.BaseAddress, client.DefaultRequestHeaders);
+
+        var response = await client.GetAsync("unit");
+
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.Here().Error("Failed to load units {0} - {1}", response.StatusCode, response.ReasonPhrase);
+            return Result<IEnumerable<Unit>>.Failure(ErrorCodes.OperationFailed);
+        }
+
+        var data = await response.Content.ReadAsStringAsync();
+        var jsonData = JsonConvert.DeserializeObject<IEnumerable<Unit>>(data);
+
+        _logger.Here().MethodExited();
+        return Result<IEnumerable<Unit>>.Success(jsonData);
     }
 }

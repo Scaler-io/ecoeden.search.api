@@ -9,4 +9,5 @@ public static class SearchIndexNameExtensions
     public static bool IsSupplierSearchIndex(this string value) => value == "supplier-search-index";
 
     public static bool IsCustomerSearchIndex(this string value) => value == "customer-search-index";
+    public static bool IsUnitSearchIndex(this string value) => value == "unit-search-index";
 }

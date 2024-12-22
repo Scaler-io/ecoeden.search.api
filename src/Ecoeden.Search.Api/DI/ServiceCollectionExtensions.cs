@@ -18,6 +18,8 @@ using Ecoeden.Search.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Ecoeden.Search.Api.Services.EventRecording;
 using Ecoeden.Search.Api.Services.HealthStatus;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 namespace Ecoeden.Search.Api.DI;
 
@@ -111,6 +113,21 @@ public static class ServiceCollectionExtensions
                 options.MigrationsHistoryTable("__EFMigrationsHistory", "ecoeden.event"));
         });
         services.AddScoped<IEventRecorderService, EventRecorderService>();
+
+
+        services.AddOpenTelemetry()
+            .ConfigureResource(options => options.AddService(configuration["AppConfigurations:ApplicationIdentifier"]))
+            .WithTracing(tracing =>
+            {
+                tracing.AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation()
+                .AddZipkinExporter(options =>
+                {
+                    options.Endpoint = new Uri(configuration["Zipkin:Url"]);
+                });
+            });
+
+
         return services;
     }
 

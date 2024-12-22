@@ -29,15 +29,16 @@ services:
       - ProviderSettings__UserApiSettings__ClientSecret=511536EF-F270-4058-80CA-1C89C192F69A
       - "ProviderSettings__UserApiSettings__Scope=userapi:read userapi:write"
       - ProviderSettings__UserApiSettings__SubscriptionKey=7B6AD94DCC3C4E9F891C52C8C340D99E
-      - ProviderSettings__InventoryApiettings__BaseUrl=http://ecoeden.api.gateway:8080/inventory/
-      - ProviderSettings__InventoryApiettings__ClientId=ecoeden.inventory.api
-      - ProviderSettings__InventoryApiettings__ClientSecret=511536EF-F270-4058-80CA-1C89C192F69A
-      - "ProviderSettings__InventoryApiettings__Scope=inventoryapi:read inventoryapi:write"
-      - ProviderSettings__InventoryApiettings__SubscriptionKey=F340FE8EA8604456AC4E66F31A87574C 
+      - ProviderSettings__InventoryApiSettings__BaseUrl=http://ecoeden.api.gateway:8080/inventory/
+      - ProviderSettings__InventoryApiSettings__ClientId=ecoeden.inventory.api
+      - ProviderSettings__InventoryApiSettings__ClientSecret=511536EF-F270-4058-80CA-1C89C192F69A
+      - "ProviderSettings__InventoryApiSettings__Scope=inventoryapi:read inventoryapi:write"
+      - ProviderSettings__InventoryApiSettings__SubscriptionKey=F340FE8EA8604456AC4E66F31A87574C 
       - EventBus__Host=rabbitmq
       - EventBus__Username=guest
       - EventBus__Password=guest
       - "ConnectionStrings__Sqlserver=Server=sqlserver;Database=EcoedenEvent;User Id=sa;Password=P@ssw0rd;Encrypt=True;TrustServerCertificate=True;"
+      - Zipkin__Url=http://ecoeden.zipkin:9411/api/v2/spans 
     ports:
       - "5003:8080"
     networks:

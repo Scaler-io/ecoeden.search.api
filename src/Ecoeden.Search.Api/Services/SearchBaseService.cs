@@ -79,6 +79,9 @@ public class SearchBaseService : QueryBuilderBaseService
                 .Keyword(k => k.Name(n => n.Email))
                 .Keyword(k => k.Name(n => n.Phone))
                 .Text(t => t.Name(n => n.Address).Analyzer("ngram_analyzer"))
+            ),
+            [typeof(UnitSearchSummary)] = descriptor => descriptor.Properties<UnitSearchSummary>(u => u
+                .Text(k => k.Name(n => n.Name).Analyzer("ngram_analyzer"))
             )
         };
 

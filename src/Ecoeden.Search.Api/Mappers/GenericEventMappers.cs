@@ -24,5 +24,14 @@ public class GenericEventMappers : Profile
         CreateMap<CustomerUpdated, CustomerSearchSummary>()
             .ForMember(d => d.UpdatedOn, o => o.MapFrom(s => s.LastUpdatedOn))
             .ReverseMap();
+        CreateMap<UnitCreated, UnitSearchSummary>()
+            .ForMember(d => d.UpdatedOn, o => o.MapFrom(s => s.LastUpdatedOn))
+            .ReverseMap();
+        CreateMap<UnitUpdated, UnitSearchSummary>()
+            .ForMember(d => d.UpdatedOn, o => o.MapFrom(s => s.LastUpdatedOn))
+            .ReverseMap();
+        CreateMap<UnitDeleted, UnitSearchSummary>()
+            .ForMember(d => d.UpdatedOn, o => o.MapFrom(s => s.LastUpdatedOn))
+            .ReverseMap();
     }
 }

@@ -118,6 +118,10 @@ public class SearchService<TDocument>(ILogger logger,
                 var customerSearchSummaries = await GetCustomersAsync();
                 bulkResponse = await ElasticsearchClient.BulkAsync(b => b.Index(index).IndexMany(customerSearchSummaries));
                 break;
+            case "unit-search-index":
+                var unitSearchSummaries = await GetUnitsAsync();
+                bulkResponse = await ElasticsearchClient.BulkAsync(b => b.Index(index).IndexMany(unitSearchSummaries));
+                break;
             default: 
                 break;
         }
@@ -183,5 +187,10 @@ public class SearchService<TDocument>(ILogger logger,
     {
         var results = await _inventoryApiProvider.GetCustomers();
         return CustomerMapper.Map(results.Data);
+    }
+    private async Task<IEnumerable<UnitSearchSummary>> GetUnitsAsync()
+    {
+        var results = await _inventoryApiProvider.GetUnits();
+        return UnitMapper.Map(results.Data);
     }
 }
