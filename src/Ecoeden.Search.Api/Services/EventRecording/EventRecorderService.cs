@@ -15,7 +15,10 @@ public class EventRecorderService(ILogger logger, EcoedenDbContext context) : IE
     public async Task<Result<EventPublishHistory>> GetEvent(string correlationId)
     {
         _logger.Here().MethodEntered();
-        var result = await _context.EventPublishHistories.FirstOrDefaultAsync(e => e.CorrelationId == correlationId);
+        var result = await _context.EventPublishHistories
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.CorrelationId == correlationId);
+
         if (result is null)
         {
             _logger.Here().WithCorrelationId(correlationId).Error("{0} - No event was found", ErrorCodes.NotFound);
