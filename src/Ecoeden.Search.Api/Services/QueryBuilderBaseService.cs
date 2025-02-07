@@ -81,12 +81,11 @@ public class QueryBuilderBaseService
 
     private QueryContainer BuildFullTextSearchQuery(string matchPhrase, string matchPhraseField)
     {
-        var fields = matchPhraseField.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-
         if (string.IsNullOrEmpty(matchPhrase) || string.IsNullOrEmpty(matchPhraseField))
         {
             return null;
         }
+        var fields = matchPhraseField.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
         return new MultiMatchQuery
         {

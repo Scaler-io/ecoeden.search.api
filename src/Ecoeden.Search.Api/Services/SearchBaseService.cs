@@ -82,6 +82,13 @@ public class SearchBaseService : QueryBuilderBaseService
             ),
             [typeof(UnitSearchSummary)] = descriptor => descriptor.Properties<UnitSearchSummary>(u => u
                 .Text(k => k.Name(n => n.Name).Analyzer("ngram_analyzer"))
+            ),
+            [typeof(StockSearchSummary)] = descriptor => descriptor.Properties<StockSearchSummary>(st => st
+                .Keyword(k => k.Name(n => n.Product.Id))
+                .Text(k => k.Name(n => n.Product.Name))
+                .Keyword(k => k.Name(n => n.Supplier.Id))
+                .Text(k => k.Name(n => n.Supplier.Name))
+                .Number(k => k.Name(n => n.Quantity))
             )
         };
 

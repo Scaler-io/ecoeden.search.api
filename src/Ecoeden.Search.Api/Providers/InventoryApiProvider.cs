@@ -2,6 +2,7 @@
 using Ecoeden.Search.Api.Extensions;
 using Ecoeden.Search.Api.Models.Constants;
 using Ecoeden.Search.Api.Models.Contracts.Customer;
+using Ecoeden.Search.Api.Models.Contracts.Stock;
 using Ecoeden.Search.Api.Models.Contracts.Supplier;
 using Ecoeden.Search.Api.Models.Contracts.Unit;
 using Ecoeden.Search.Api.Models.Core;
@@ -125,4 +126,39 @@ public class InventoryApiProvider(IHttpClientFactory httpClientFactory,
         _logger.Here().MethodExited();
         return Result<IEnumerable<Unit>>.Success(jsonData);
     }
-}
+
+    public async Task<Result<IEnumerable<ProductStock>>> GetProductStocks()
+    {
+        _logger.Here().MethodEntered();
+        _logger.Here().Information("Making HTTP call to stock endpoint");
+
+        var client = _httpClientFactory.CreateClient(ApiProviderNames.InventoryApi);
+        var token = await _identityServiceProvider.GetAccessToken(_providerSettings, ApiProviderNames.InventoryApi);
+
+        if (string.IsNullOrEmpty(token))
+        {
+            _logger.Here().Error("Access token could not be generated");
+            return Result<IEnumerable<ProductStock>>.Failure(ErrorCodes.OperationFailed);
+        }
+
+        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        client.DefaultRequestHeaders.Add("api-version", "v1");
+
+        _logger.Here().Information("base url from settings - {url}", _providerSettings.InventoryApiSettings.BaseUrl);
+        _logger.Here().Information("{baseUrl} - {headers}", client.BaseAddress, client.DefaultRequestHeaders);
+
+        var response = await client.GetAsync("stock");
+
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.Here().Error("Failed to load stocks {0} - {1}", response.StatusCode, response.ReasonPhrase);
+            return Result<IEnumerable<ProductStock>>.Failure(ErrorCodes.OperationFailed);
+        }
+
+        var data = await response.Content.ReadAsStringAsync();
+        var jsonData = JsonConvert.DeserializeObject<IEnumerable<ProductStock>>(data);
+
+        _logger.Here().MethodExited();
+        return Result<IEnumerable<ProductStock>>.Success(jsonData);
+    }
+ }

@@ -36,7 +36,7 @@ public class CustomerUpdatedConsumer(IEventRecorderService eventRecorderService,
         var summary = _mapper.Map<CustomerSearchSummary>(context.Message);
         var result = await _searchService.UpdateDocumentAsync(summary, new() { { "id", summary.Id } }, _elasticOptions.CustomerIndex);
 
-        if (result.IsSuccess)
+        if (!result.IsSuccess)
         {
             _logger.Here()
                 .ForContext("MessageId", context.MessageId)

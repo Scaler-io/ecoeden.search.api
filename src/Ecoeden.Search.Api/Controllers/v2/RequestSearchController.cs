@@ -27,6 +27,7 @@ public class RequestSearchController(ILogger logger, ISearchServiceFactory facto
             var name when name.IsSupplierSearchIndex() => await HandleSearchAsync<SupplierSearchSummary>(query, indexName),
             var name when name.IsCustomerSearchIndex() => await HandleSearchAsync<CustomerSearchSummary>(query, indexName),
             var name when name.IsUnitSearchIndex() => await HandleSearchAsync<UnitSearchSummary>(query, indexName),
+            var name when name.IsStockSearchIndex() => await HandleSearchAsync<StockSearchSummary>(query, indexName),
             _ => BadRequest(new ApiValidationResponse("Invalid index name provided"))
         };      
         Logger.Here().MethodExited();
@@ -68,6 +69,8 @@ public class RequestSearchController(ILogger logger, ISearchServiceFactory facto
             return await ExecuteCountAsync<CustomerSearchSummary>(indexName, query);
         if (indexName.IsUnitSearchIndex())
             return await ExecuteCountAsync<UnitSearchSummary>(indexName, query);
+        if (indexName.IsStockSearchIndex())
+            return await ExecuteCountAsync<StockSearchSummary>(indexName, query);
 
         return Result<long>.Failure(Models.Enums.ErrorCodes.BadRequest, "Invalid index name provided");
     }

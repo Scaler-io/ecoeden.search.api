@@ -6,6 +6,8 @@ using Ecoeden.Search.Api.Models.Constants;
 using Ecoeden.Search.Api.Models.Core;
 using Ecoeden.Search.Api.Models.Enums;
 using Ecoeden.Search.Api.Providers;
+using Ecoeden.Search.Api.Services.Factory;
+using Ecoeden.Search.Api.Services.Pagination;
 using Elasticsearch.Net;
 using Microsoft.Extensions.Options;
 using Nest;
@@ -16,12 +18,16 @@ public class SearchService<TDocument>(ILogger logger,
     CatalogueApiProvider catalogueApiProvider,
     UserApiProvider userApiProvider,
     InventoryApiProvider inventoryApiProvider,
-    IOptions<ElasticSearchOption> options)
+    IOptions<ElasticSearchOption> options,
+    ISearchServiceFactory searchServiceFactory)
     : SearchBaseService(logger, options), ISearchService<TDocument> where TDocument : class
 {
     private readonly CatalogueApiProvider _catalogueApiProvider = catalogueApiProvider;
     private readonly UserApiProvider _userApiProvider = userApiProvider;
     private readonly InventoryApiProvider _inventoryApiProvider = inventoryApiProvider;
+    private readonly ElasticSearchOption _elasticSearchOption = options.Value;
+    private readonly IPaginatedSearchService<ProductSearchSummary> _productSearchService = searchServiceFactory.CreatePaginatedService<ProductSearchSummary>();
+    private readonly IPaginatedSearchService<SupplierSearchSummary> _supplierSearchService = searchServiceFactory.CreatePaginatedService<SupplierSearchSummary>();
 
     public async Task<Result<bool>> SeedDocumentAsync(TDocument document, string id, string index)
     {
@@ -122,7 +128,11 @@ public class SearchService<TDocument>(ILogger logger,
                 var unitSearchSummaries = await GetUnitsAsync();
                 bulkResponse = await ElasticsearchClient.BulkAsync(b => b.Index(index).IndexMany(unitSearchSummaries));
                 break;
-            default: 
+            case "stock-search-index":
+                var stockSearchSummaries = await GetStocksAsync();
+                bulkResponse = await ElasticsearchClient.BulkAsync(b => b.Index(index).IndexMany(stockSearchSummaries));
+                break;
+            default:
                 break;
         }
 
@@ -188,9 +198,50 @@ public class SearchService<TDocument>(ILogger logger,
         var results = await _inventoryApiProvider.GetCustomers();
         return CustomerMapper.Map(results.Data);
     }
+
     private async Task<IEnumerable<UnitSearchSummary>> GetUnitsAsync()
     {
         var results = await _inventoryApiProvider.GetUnits();
         return UnitMapper.Map(results.Data);
+    }
+
+    private async Task<IEnumerable<StockSearchSummary>> GetStocksAsync()
+    {
+        var result = await _inventoryApiProvider.GetProductStocks();
+
+        var stocks = result.Data;
+        List<StockSearchSummary> stockSummaries = [];
+
+        foreach (var stock in stocks)
+        {
+            var productTask = _productSearchService.GetPaginatedData(new()
+            {
+                IsFilteredQuery = true,
+                Filters = new() { { "id", stock.ProductId } },
+            }, Guid.NewGuid().ToString(), _elasticSearchOption.ProductIndex);
+
+            var supplierTask = _supplierSearchService.GetPaginatedData(new()
+            {
+                IsFilteredQuery = true,
+                Filters = new() { { "id", stock.SupplierId } },
+                SortField = "updatedOn",
+                SortOrder = "Asc"
+            }, Guid.NewGuid().ToString(), _elasticSearchOption.SupplierIndex);
+
+            await Task.WhenAll(productTask, supplierTask);
+
+            if (!productTask.Result.IsSuccess || !supplierTask.Result.IsSuccess)
+            {
+                _logger.Here().Error("Error fetching product or supplier details with product - {productId} and supplier - {supplierId}"
+                    , stock.ProductId, stock.SupplierId);
+                continue;
+            }
+            var product = productTask.Result.Data;
+            var supplier = supplierTask.Result.Data;
+
+            stockSummaries.Add(StockMapper.Map(stock: stock, product: product.Data[0], supplier: supplier.Data[0]));
+        }
+
+        return stockSummaries;
     }
 }
